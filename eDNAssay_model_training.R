@@ -9,7 +9,7 @@ library(beepr)
 library(plotROC)
 
 ### Select input CSV file containing training data
-traindata <- read.csv(file.choose(), header = TRUE) # "eDNAssay_training_data"
+traindata <- read.csv(file.choose(), header = TRUE) # "Training_data"
 
 ##################################################################################################
 ### Define variables of interest and create training dataframe
@@ -168,6 +168,7 @@ beep(sound = 1)
 
 ##################################################################################################
 ### Assess model performance
+# setwd()
 # load("eDNAssay_rf_model.RData")
 print(trainmodel_taqman)
 
