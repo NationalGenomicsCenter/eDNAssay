@@ -1,5 +1,5 @@
-Our supervised machine learning classifiers predict  qPCR cross-amplification according to two reaction chemistries: SYBR Green (primers only) and 
-TaqMan (primers and probe). Separate models were trained for each and the TaqMan model is also available as an online app (https://nationalgenomicscenter.shinyapps.io/eDNAssay/). 
+Our machine learning classifiers predict qPCR cross-amplification via to two reaction chemistries: SYBR Green (primers only) and TaqMan (primers and probe). 
+Separate models were learned for each and the TaqMan model is also available as an online app (https://nationalgenomicscenter.shinyapps.io/eDNAssay/). 
 
 The impetus for building these models was to streamline development of environmental DNA (eDNA) assays. Environmental DNA assays need to discriminate among 
 suites of sequences that may very similar. To ensure assay specificity, eDNA practitioners typically evaluate sequences from all closely related taxa 
