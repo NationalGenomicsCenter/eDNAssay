@@ -1,4 +1,4 @@
-This repository contains R scripts and data files needed to train a random forest classifier to predict qPCR cross-amplification. Both SYBR Green
+This repository contains R scripts and data files needed to train random forest classifiers to predict qPCR cross-amplification. Both SYBR Green
 chemistry (primers only) and TaqMan chemistry (primers and probe) are modeled and the TaqMan model is also available as an online app 
 (https://nationalgenomicscenter.shinyapps.io/eDNAssay/). 
 
