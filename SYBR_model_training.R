@@ -8,7 +8,8 @@ library(beepr)
 library(plotROC)
 
 ### Select input CSV file containing training data
-traindata <- read.csv(file.choose(), header = TRUE) # "Training_data"
+traindata <-
+  read.csv(file.choose(), header = TRUE) # "Training_data"
 
 ##################################################################################################
 ### Define variables of interest and create training dataframe
@@ -84,7 +85,7 @@ traindata <- subset.data.frame(traindata, select = c(3:19))
 table(traindata$SYBR_results) # Binary outcomes are roughly equal
 
 ### Assess highly correlated variables
-varcor <- cor(traindata[, -17])
+varcor <- cor(traindata[,-17])
 findCorrelation(varcor, cutoff = 0.75) # Length strongly correlated with GC content
 
 ### Remove GC content
@@ -92,7 +93,7 @@ traindata <-
   subset.data.frame(traindata, select = -16)
 
 ### Assess linearly dependent variables
-findLinearCombos(traindata[, -16]) # No linearly dependent predictors
+findLinearCombos(traindata[,-16]) # No linearly dependent predictors
 
 ### Normalizing data not necessary for random forest models
 
@@ -152,7 +153,7 @@ trainmodel_sybr$pred <-
 index_sybr <- trainmodel_sybr$pred$mtry == 7
 
 trainauc_sybr <-
-  ggplot(trainmodel_sybr$pred[index_sybr, ], aes(m = Amp, d = as.integer(obs))) +
+  ggplot(trainmodel_sybr$pred[index_sybr,], aes(m = Amp, d = as.integer(obs))) +
   geom_roc(n.cuts = 0, color = "black") + coord_equal() + style_roc() +
   ggtitle("ROC") +
   theme(plot.title = element_text(hjust = 0.5, size = 18)) +
