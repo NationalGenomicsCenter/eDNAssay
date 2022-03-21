@@ -14,9 +14,9 @@ models have been trained on empirical data, and are exceptionally accurate as a 
 For optimal performance, we recommend users either 1) develop assays under the reaction conditions used to train these models or 2) test the accuracy 
 of models under other reaction conditions before relying on them to declare specificity. See Kronenberger et al. (2022) for details.
 
-# File guide
-- **SYBR_model_training.R**: Script used to train a random forest model to predict cross-amplification of SYBR Green-based qPCR assays.
-- **SYBR_rf_model.RData**: A learned model produced through SYBR Green model training (SYBR_model_training.R script).
+### File guide
+- **SYBR_model_training.R** - Script used to train a random forest model to predict cross-amplification of SYBR Green-based qPCR assays.
+- **SYBR_rf_model.RData** - A learned model produced through SYBR Green model training (SYBR_model_training.R script).
 - **SYBR_specificity_prediction**: Script used to calculate base-pair mismatches between assay oligonucleotides and templates, and then assign templates
 probabilities of belonging to either the "amplify" or "non-amplify" class via the learned SYBR Green model (SYBR_rf_model.RData). 
 - **TaqMan_model_training.R**: Script used to train a random forest model to predict cross-amplification of TaqMan-based qPCR assays.
@@ -36,7 +36,7 @@ alternative to the eDNAssay Shiny app.
 - **eDNAssay_optimal_thresholds.R**: Script used to calculate which class assignment probability thresholds are optimal for a range of false negative (FN)
 to false positive (FP) cost ratios. For a given FN:FP cost ratio, the threshold that results in the lowest total error cost is optimal.
 
-# Contact information
+### Contact information
 Please reach out to us at the [National Genomics Center for Wildlife and Fish Conservation](https://www.fs.usda.gov/rmrs/ngc) with any questions or comments. 
 Scripts and models were created by Taylor Wilcox @ taylor.wilcox@usda.gov and John Kronenberger @ john.kronenberger@usda.gov.
 
