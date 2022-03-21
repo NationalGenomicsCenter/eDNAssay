@@ -1,3 +1,5 @@
+##eDNAssay: a learned model of qPCR cross-amplification
+
 Our machine learning classifiers predict qPCR cross-amplification via to two reaction chemistries: SYBR Green (primers only) and TaqMan (primers and probe). 
 Separate models were trained for each and the TaqMan model is also available online as eDNAssay (https://nationalgenomicscenter.shinyapps.io/eDNAssay/). 
 
