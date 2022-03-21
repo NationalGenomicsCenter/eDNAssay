@@ -1,5 +1,6 @@
 ##################################################################################################
-### Script calculates optimal thresholds for the model underlying eDNAssay
+### Script uses the model underlying eDNAssay to calculate optimal class assignment thresholds 
+### for a range of false negative to false positive cost ratios
 ##################################################################################################
 library(caret)
 setwd()

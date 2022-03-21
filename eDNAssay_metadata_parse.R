@@ -1,5 +1,5 @@
 ##################################################################################################
-### Script creates a metadata file from an alignment, formatted for eDNAssay
+### Script parses a metadata file from an alignment, formatted for eDNAssay
 ##################################################################################################
 library(Biostrings)
 

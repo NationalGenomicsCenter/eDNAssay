@@ -1,5 +1,5 @@
 ##################################################################################################
-### Script processes specificity files to output summary stats on multiple sequences per taxon
+### Script processes specificity data to output summary stats on multiple sequences per taxon
 ##################################################################################################
 library(data.table)
 setwd()

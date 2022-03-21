@@ -1,5 +1,5 @@
 ##################################################################################################
-### Script trains a random forest classifier to predict qPCR cross-amplification
+### Script trains a random forest classifier to predict SYBR Green-based qPCR cross-amplification
 ##################################################################################################
 library(tidyverse)
 library(caret)

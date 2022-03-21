@@ -1,7 +1,8 @@
 ##################################################################################################
-### Mismatch portion of script adapted from So et al. (2020; Pitfalls during in silico prediction
-### of primer specificity for eDNA surveillance; Ecosphere, e03193); outputs the probability of
-### amplification for each template provided; accepts IUPAC ambiguities
+### Script estimates the specificity of SYBR Green-based qPCR assays. Mismatch portion of script 
+### adapted from So et al. (2020; Pitfalls during in silico prediction of primer specificity for 
+### eDNA surveillance; Ecosphere, e03193); outputs the probability of amplification for each 
+### template provided; accepts IUPAC ambiguities
 ##################################################################################################
 library(Biostrings)
 library(dplyr)
