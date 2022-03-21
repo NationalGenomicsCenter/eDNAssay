@@ -10,7 +10,7 @@ is often dubious. Instead of relying on thermodynamic models and simple mismatch
 models have been trained on empirical data, and are exceptionally accurate as a result.
 
 For optimal performance, we recommend users either 1) develop assays under the reaction conditions used to train these models or 2) test the accuracy 
-of models under other reaction conditions before relying on them to declare specificity. See Kronenberger et al. (*in review*) for details.
+of models under other reaction conditions before relying on them to declare specificity. See Kronenberger et al. (in review) for details.
 
 ## File guide
 - **Training_data.csv** - Empirical dataset containing information on base-pair mismatchs, oligonucleotide characteristics, and the results of SYBR Green- 
