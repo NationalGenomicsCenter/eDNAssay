@@ -119,7 +119,7 @@ table(traindata$TaqMan_results) # Binary outcomes not very equal
 
 ### Balance class variables using SMOTE
 traindata_taqmans <-
-  SMOTE(traindata[,-30], traindata[, 30], dup_size = 2)
+  SMOTE(traindata[, -30], traindata[, 30], dup_size = 2)
 traindata_taqmans <- traindata_taqmans$data
 traindata_taqmans$class <- as.factor(traindata_taqmans$class)
 table(traindata_taqmans$class)
@@ -128,7 +128,7 @@ table(traindata_taqmans$class)
 nearZeroVar(traindata_taqmans, saveMetrics = TRUE)
 
 ### Assess highly correlated variables
-varcor <- cor(traindata_taqmans[, -30])
+varcor <- cor(traindata_taqmans[,-30])
 findCorrelation(varcor, cutoff = 0.75) # Length strongly correlated with GC content
 
 ### Remove GC content
@@ -136,7 +136,7 @@ traindata_taqmans <-
   subset.data.frame(traindata_taqmans, select = -c(16, 29))
 
 ### Assess linearly dependent variables
-findLinearCombos(traindata_taqmans[,-28]) # No linearly dependent variables
+findLinearCombos(traindata_taqmans[, -28]) # No linearly dependent variables
 
 ### Normalizing data not necessary for random forest models
 
@@ -197,7 +197,7 @@ trainmodel_taqman$pred <-
 index_taqman <- trainmodel_taqman$pred$mtry == 2
 
 trainauc_taqman <-
-  ggplot(trainmodel_taqman$pred[index_taqman, ], aes(m = Amp, d = as.integer(obs))) +
+  ggplot(trainmodel_taqman$pred[index_taqman,], aes(m = Amp, d = as.integer(obs))) +
   geom_roc(n.cuts = 0, color = "black") + coord_equal() + style_roc() +
   ggtitle("ROC") +
   theme(plot.title = element_text(hjust = 0.5, size = 18)) +
