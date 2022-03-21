@@ -7,12 +7,17 @@ setwd()
 
 target_taxon <- "Target"
 
-fasta <- readDNAStringSet(file.choose(), format = "fasta") # FASTA file
+fasta <-
+  readDNAStringSet(file.choose(), format = "fasta") # FASTA file
 
 names <- fasta@ranges@NAMES
 
-extract_name <- function(x){
-  print(gsub("^[A-Z]+[^\\s]+\\s+([A-Z]+\\w+\\s+\\w+)\\s+.+", replacement = "\\1", x))
+extract_name <- function(x) {
+  print(gsub(
+    "^[A-Z]+[^\\s]+\\s+([A-Z]+\\w+\\s+\\w+)\\s+.+",
+    replacement = "\\1",
+    x
+  ))
 }
 
 Taxon <- extract_name(names)
