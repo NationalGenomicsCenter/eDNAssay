@@ -26,7 +26,7 @@ probabilities of belonging to either the "amplify" or "non-amplify" class via th
 alternative to the eDNAssay Shiny app.
 - **app.R** - Script behind the eDNAssay Shiny app.
 - **eDNAssay_alignment_example.fas** - An example sequence alignment file for use with the eDNAssay script and app.
-- **eDNAssay_metadata_example.fas** - An example metadata file for use with the eDNAssay script and app.
+- **eDNAssay_metadata_example.csv** - An example metadata file for use with the eDNAssay script and app.
 - **eDNAssay_metadata_parse.R** - Script used to parse a .fas file into a .csv file formatted for use with eDNAssay. Some post-processing may be desired 
 to ensure species names are consistant.
 - **eDNAssay_assignment_probability_stats.R** - Script used to calculate summary statistics (minimum, maximum, mean, and standard deviation of the mean) 
