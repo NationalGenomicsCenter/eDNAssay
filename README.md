@@ -36,5 +36,5 @@ to false positive (FP) cost ratios. For a given FN:FP cost ratio, the threshold 
 
 ## Contact information
 Please reach out to us at the [National Genomics Center for Wildlife and Fish Conservation](https://www.fs.usda.gov/rmrs/ngc) with any questions or comments. 
-Scripts and models were created by Taylor Wilcox @ taylor.wilcox@usda.gov and John Kronenberger @ john.kronenberger@usda.gov.
+Scripts and models were created by Taylor Wilcox at taylor.wilcox@usda.gov and John Kronenberger at john.kronenberger@usda.gov.
 
