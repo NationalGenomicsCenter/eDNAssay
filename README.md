@@ -10,7 +10,7 @@ is often dubious. Instead of relying on thermodynamic models and simple mismatch
 models have been trained on empirical data, and are exceptionally accurate as a result.
 
 For optimal performance, we recommend users either 1) develop assays under the reaction conditions used to train these models or 2) test the accuracy 
-of models under other reaction conditions before relying on them to declare specificity. See Kronenberger et al. (2022) for details.
+of models under other reaction conditions before relying on them to declare specificity. See Kronenberger et al. (in review) for details.
 
 ## File guide
 - **Training_data.csv** - Empirical dataset containing information on base-pair mismatchs, oligonucleotide characteristics, and the results of SYBR Green- 
@@ -26,7 +26,7 @@ probabilities of belonging to either the "amplify" or "non-amplify" class via th
 alternative to the eDNAssay Shiny app.
 - **app.R** - Script behind the eDNAssay Shiny app.
 - **eDNAssay_alignment_example.fas** - An example sequence alignment file for use with the eDNAssay script and app.
-- **eDNAssay_metadata_example.fas** - An example metadata file for use with the eDNAssay script and app.
+- **eDNAssay_metadata_example.csv** - An example metadata file for use with the eDNAssay script and app.
 - **eDNAssay_metadata_parse.R** - Script used to parse a .fas file into a .csv file formatted for use with eDNAssay. Some post-processing may be desired 
 to ensure species names are consistant.
 - **eDNAssay_assignment_probability_stats.R** - Script used to calculate summary statistics (minimum, maximum, mean, and standard deviation of the mean) 
@@ -36,5 +36,5 @@ to false positive (FP) cost ratios. For a given FN:FP cost ratio, the threshold 
 
 ## Contact information
 Please reach out to us at the [National Genomics Center for Wildlife and Fish Conservation](https://www.fs.usda.gov/rmrs/ngc) with any questions or comments. 
-Scripts and models were created by Taylor Wilcox @ taylor.wilcox@usda.gov and John Kronenberger @ john.kronenberger@usda.gov.
+Scripts and models were created by Taylor Wilcox at taylor.wilcox@usda.gov and John Kronenberger at john.kronenberger@usda.gov.
 
