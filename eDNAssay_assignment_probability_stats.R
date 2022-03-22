@@ -4,7 +4,6 @@
 library(data.table)
 setwd()
 
-### Assignment probability stats
 aps <-
   read.csv(file.choose(), header = TRUE) # Specificity file output by eDNAssay
 aps <- data.table(aps)
