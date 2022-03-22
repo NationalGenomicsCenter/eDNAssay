@@ -13,7 +13,7 @@ For optimal performance, we recommend users either 1) develop assays under the r
 of models under other reaction conditions before relying on them to declare specificity. See Kronenberger et al. (in review) for details.
 
 ## File guide
-- **Training_data.csv** - Empirical dataset containing information on base-pair mismatchs, oligonucleotide characteristics, and the results of SYBR Green- 
+- **Training_data.csv** - Empirical dataset containing information on base-pair mismatches, oligonucleotide characteristics, and the results of SYBR Green- 
 and TaqMan-based qPCR testing. These data are used to train the SYBR Green and TaqMan (eDNAssay) models.
 - **SYBR_model_training.R** - Script used to train a random forest model to predict cross-amplification of SYBR Green-based qPCR assays.
 - **SYBR_rf_model.RData** - A learned model produced through SYBR Green model training (SYBR_model_training.R script).
