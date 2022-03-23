@@ -29,4 +29,4 @@ for (i in 1:100) {
   opt_threshold[i] <- min_cost(thresh$FNrate, thresh$FPrate, i)
 }
 
-save(opt_threshold, file = "eDNAssay_optimal_thresholds.RData")
+save(opt_threshold, file = "TaqMan_optimal_thresholds.RData")
