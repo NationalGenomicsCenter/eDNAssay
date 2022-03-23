@@ -994,7 +994,7 @@ write.csv(testdata, output_mismatches, row.names = FALSE)
 ##################################################################################################
 ### Load training model and predict amplification
 #testdata <- read.csv(file.choose())
-load("TaqMan_rf_model.RData")
+load("TaqMan_RF_model.RData")
 
 prediction <-
   predict(trainmodel_taqman, newdata = testdata, type = "prob") # Predict results of test data
