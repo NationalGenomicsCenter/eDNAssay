@@ -3,7 +3,6 @@
 ### for a range of false negative to false positive cost ratios
 ##################################################################################################
 library(caret)
-setwd()
 load("TaqMan_rf_model.RData")
 
 thresh <-
