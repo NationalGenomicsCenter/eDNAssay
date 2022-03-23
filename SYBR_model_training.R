@@ -125,7 +125,7 @@ beep(sound = 1)
 
 ##################################################################################################
 ### Assess model performance
-load("SYBR_rf_model.RData")
+load("SYBR_RF_model.RData")
 print(trainmodel_sybr)
 
 # trainresults_sybr <- predict(trainmodel_sybr, type="prob") # To output assignment probabilities
