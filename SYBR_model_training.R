@@ -9,7 +9,7 @@ library(plotROC)
 
 ### Select input CSV file containing training data
 traindata <-
-  read.csv(file.choose(), header = TRUE) # "Training_data"
+  read.csv(file.choose(), header = TRUE) # Training data
 
 ##################################################################################################
 ### Define variables of interest and create training dataframe
@@ -120,12 +120,11 @@ trainmodel_sybr <-
     trControl = traincontrol,
     tuneGrid = tunegrid
   )
-#save(trainmodel_sybr, file = "SYBR_rf_model.RData")
+save(trainmodel_sybr, file = "SYBR_rf_model.RData")
 beep(sound = 1)
 
 ##################################################################################################
 ### Assess model performance
-setwd("C:/Users/jkronenberger/Box/ESTCP/eDNAssay/eDNAssay_files_for_GitHub")
 load("SYBR_rf_model.RData")
 print(trainmodel_sybr)
 
