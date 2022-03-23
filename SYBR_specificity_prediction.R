@@ -756,7 +756,7 @@ write.csv(testdata, output_mismatches, row.names = FALSE)
 
 ##################################################################################################
 ### Load training model and predict amplification
-load("SYBR_rf_model.RData")
+load("SYBR_RF_model.RData")
 prediction <-
   predict(trainmodel_sybr, newdata = testdata, type = "prob") # Predict results of test data
 prediction <- cbind(testdata[, 1:3], prediction[, 1])
