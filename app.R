@@ -1503,7 +1503,7 @@ server <- function(input, output) {
     )
     
     ### Used below
-    load("TaqMan_optimal_threshold.RData")
+    load("TaqMan_optimal_thresholds.RData")
     
     ### Optimal threshold plot
     output$opt <- renderPlot({
