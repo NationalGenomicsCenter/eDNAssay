@@ -168,7 +168,7 @@ beep(sound = 1)
 
 ##################################################################################################
 ### Assess model performance
-load("TaqMan_rf_model.RData")
+load("TaqMan_RF_model.RData")
 print(trainmodel_taqman)
 
 # trainresults_taqman <- predict(trainmodel_taqman, type="prob") # To output assignment probabilities
