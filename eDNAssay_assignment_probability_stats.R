@@ -2,7 +2,6 @@
 ### Script processes specificity data to output summary stats on multiple sequences per taxon
 ##################################################################################################
 library(data.table)
-setwd()
 
 aps <-
   read.csv(file.choose(), header = TRUE) # Specificity file output by eDNAssay
