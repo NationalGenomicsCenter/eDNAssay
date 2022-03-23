@@ -26,6 +26,7 @@ R_Tm <- 60
 P_Tm <- 70
 
 ### Specify output CSV file
+output_mismatches <- "Assay_mismatches.csv"
 output_probabilities <- "Assay_specificity.csv"
 
 ##################################################################################################
@@ -987,6 +988,8 @@ testdata <- subset(
 is.nan.data.frame <- function(x)
   do.call(cbind, lapply(x, is.nan))
 testdata[is.nan(testdata)] <- 0
+
+write.csv(testdata, output_mismatches, row.names = FALSE)
 
 ##################################################################################################
 ### Load training model and predict amplification
