@@ -1,14 +1,12 @@
 ##################################################################################################
 ### Script estimates the specificity of TaqMan-based qPCR assays. Mismatch portion of script 
 ### adapted from So et al. (2020; Pitfalls during in silico prediction of primer specificity for 
-### eDNA surveillance; Ecosphere, e03193); outputs the probability of amplification for each 
-### template provided; accepts IUPAC ambiguities
+### eDNA surveillance; Ecosphere, e03193); outputs the probability of being assigned to the
+### "amplify" class for each template provided; accepts IUPAC ambiguities; indels treated as N 
+### for a conservative estimate of specificity
 ##################################################################################################
 library(Biostrings)
 library(dplyr)
-
-### Set working directory
-setwd()
 
 ### Specify input FAS file containing aligned sequences; oligo (primer and probe) sequences must
 ### appear first, ordered as F, R, P; oligos must have complete overlap with templates; only IUPAC
@@ -21,9 +19,9 @@ input_seqs <- readDNAStringSet(file.choose())
 input_metadata <- read.csv(file.choose())
 
 ### Specify melting temperatures most closely matching your reaction conditions
-F_Tm <- 60
-R_Tm <- 60
-P_Tm <- 70
+F_Tm <- 58.9
+R_Tm <- 59.3
+P_Tm <- 69
 
 ### Specify output CSV file
 output_mismatches <- "Assay_mismatches.csv"
@@ -37,6 +35,12 @@ input_matrix <- cbind(input_metadata, input_seqs)
 input_matrix <-
   as.data.frame(input_matrix, stringsAsFactors = FALSE)
 input_matrix <- na_if(input_matrix, "-")
+
+### Convert "NA" in template sequences to "N" to accommodate indels
+input_matrix_oligos <- input_matrix[1:3, ]
+input_matrix_templates <- input_matrix[4:nrow(input_matrix), ]
+input_matrix_templates[is.na(input_matrix_templates)] <- "N"
+input_matrix <- rbind(input_matrix_oligos, input_matrix_templates)
 
 ### Define length variables and relabel rows
 length_type <- length(input_matrix$Type)
@@ -834,6 +838,7 @@ mm_type_final$CC <- as.numeric(as.character(mm_type_final$CC))
 ### Combine dataframes, append new variables, and reshape
 testdata <- cbind(mm_final, mm_type_final)
 testdata$Oligo <- as.character(substring(testdata$Oligo, 6))
+
 testdata$Center_mm <-
   as.integer(paste(testdata$Total_mm - testdata$End5p_mm - testdata$End3p_mm))
 testdata <-
@@ -993,8 +998,8 @@ write.csv(testdata, output_mismatches, row.names = FALSE)
 
 ##################################################################################################
 ### Load training model and predict amplification
-#testdata <- read.csv(file.choose())
-load("TaqMan_RF_model.RData")
+# testdata <- read.csv(file.choose())
+load("TaqMan_trained_model.RData")
 
 prediction <-
   predict(trainmodel_taqman, newdata = testdata, type = "prob") # Predict results of test data
