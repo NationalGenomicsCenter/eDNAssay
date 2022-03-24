@@ -19,5 +19,5 @@ aps <- aps[order(Taxon),]
 aps <- unique(aps, by = "Taxon")
 aps <- aps[,-c(3:4)]
 
-write.csv(aps, "Assay_stats.csv", row.names = FALSE)
+write.csv(aps, "Assignment_probability_stats.csv", row.names = FALSE)
 print("Finished!")
