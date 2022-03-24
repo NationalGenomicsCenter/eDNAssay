@@ -3,7 +3,7 @@
 ### for a range of false negative to false positive cost ratios
 ##################################################################################################
 library(caret)
-load("TaqMan_RF_model.RData")
+load("TaqMan_trained_model.RData")
 
 thresh <-
   thresholder(trainmodel_taqman, threshold = seq(0, 1, by = 0.01))
