@@ -12,7 +12,7 @@ library(DT)
 library(shinycssloaders)
 
 ### Load trained model
-load("TaqMan_RF_model.RData")
+load("TaqMan_trained_model.RData")
 
 ### Used below to format slider
 sliderInput2 <-
