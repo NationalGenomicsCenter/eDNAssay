@@ -104,7 +104,8 @@ ui <- tagList(
                         ordered as forward primer, reverse primer, then probe; name using four-letter codes followed by
                         a space then a single-digit oligonucleotide signifier ("XXXX F", "XXXX R", and "XXXX P").
                         Oligonucleotides must have complete overlap with templates. Only IUPAC-approved characters are
-                        allowed (A, C, G, T, M, R, W, S, Y, K, V, H, D, B, N, -, +, and .). See this'
+                        allowed (A, C, G, T, M, R, W, S, Y, K, V, H, D, B, N, -, +, and .). Any dashes (indels) present
+                        are treated as Ns (any base) for a conservative estimate of assay specificity. See this'
                     ),
                     a(
                         href = "FVIR_alignment.fas",
@@ -373,6 +374,12 @@ server <- function(input, output) {
         input_matrix <-
             as.data.frame(input_matrix, stringsAsFactors = FALSE)
         input_matrix <- na_if(input_matrix, "-")
+        
+        ### Convert "NA" in template sequences to "N" to accommodate indels
+        input_matrix_oligos <- input_matrix[1:3, ]
+        input_matrix_templates <- input_matrix[4:nrow(input_matrix), ]
+        input_matrix_templates[is.na(input_matrix_templates)] <- "N"
+        input_matrix <- rbind(input_matrix_oligos, input_matrix_templates)
         
         ### Define length variables and relabel rows
         length_type <- length(input_matrix$Type)
