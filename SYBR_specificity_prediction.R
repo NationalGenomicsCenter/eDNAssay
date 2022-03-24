@@ -1,14 +1,12 @@
 ##################################################################################################
 ### Script estimates the specificity of SYBR Green-based qPCR assays. Mismatch portion of script 
 ### adapted from So et al. (2020; Pitfalls during in silico prediction of primer specificity for 
-### eDNA surveillance; Ecosphere, e03193); outputs the probability of amplification for each 
-### template provided; accepts IUPAC ambiguities
+### eDNA surveillance; Ecosphere, e03193); outputs the probability of being assigned to the
+### "amplify" class for each template provided; accepts IUPAC ambiguities; indels treated as N 
+### for a conservative estimate of specificity
 ##################################################################################################
 library(Biostrings)
 library(dplyr)
-
-### Set working directory
-setwd("C:/Users/jkronenberger/Box/ESTCP/Specificity_tests/Testing_assays/SACS")
 
 ### Specify input FAS file containing aligned sequences; oligo sequences must appear first, ordered
 ### as forward then reverse primer; oligos must have complete overlap with templates; only IUPAC
@@ -36,6 +34,12 @@ input_matrix <- cbind(input_metadata, input_seqs)
 input_matrix <-
   as.data.frame(input_matrix, stringsAsFactors = FALSE)
 input_matrix <- na_if(input_matrix, "-")
+
+### Convert "NA" in template sequences to "N" to accommodate indels
+input_matrix_oligos <- input_matrix[1:3, ]
+input_matrix_templates <- input_matrix[4:nrow(input_matrix), ]
+input_matrix_templates[is.na(input_matrix_templates)] <- "N"
+input_matrix <- rbind(input_matrix_oligos, input_matrix_templates)
 
 ### Define length variables and relabel rows
 length_type <- length(input_matrix$Type)
@@ -756,7 +760,7 @@ write.csv(testdata, output_mismatches, row.names = FALSE)
 
 ##################################################################################################
 ### Load training model and predict amplification
-load("SYBR_RF_model.RData")
+load("SYBR_trained_model.RData")
 prediction <-
   predict(trainmodel_sybr, newdata = testdata, type = "prob") # Predict results of test data
 prediction <- cbind(testdata[, 1:3], prediction[, 1])
