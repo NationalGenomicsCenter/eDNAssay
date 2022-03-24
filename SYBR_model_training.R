@@ -120,12 +120,12 @@ trainmodel_sybr <-
     trControl = traincontrol,
     tuneGrid = tunegrid
   )
-save(trainmodel_sybr, file = "SYBR_rf_model.RData")
+save(trainmodel_sybr, file = "SYBR_trained_model.RData")
 beep(sound = 1)
 
 ##################################################################################################
 ### Assess model performance
-load("SYBR_RF_model.RData")
+load("SYBR_trained_model.RData")
 print(trainmodel_sybr)
 
 # trainresults_sybr <- predict(trainmodel_sybr, type="prob") # To output assignment probabilities
