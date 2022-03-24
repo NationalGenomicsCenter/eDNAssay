@@ -26,4 +26,4 @@ Name <- names
 Type <- c(rep("Oligo", 3), rep("Template", length(names) - 3))
 
 metadata <- data.frame(Taxon = Taxon, Name = Name, Type = Type)
-write.csv(metadata, "Mtadata.csv", row.names = FALSE)
+write.csv(metadata, "Metadata.csv", row.names = FALSE)
