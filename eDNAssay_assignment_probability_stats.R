@@ -8,11 +8,11 @@ aps <-
 aps <- data.table(aps)
 
 aps[, ':='(
+  N = length(Amp),
   Min_amp = min(Amp),
   Max_amp = max(Amp),
   Mean_amp = mean(Amp),
-  SD_amp = sd(Amp),
-  N = length(Amp)
+  SD_amp = sd(Amp)
 ), by = Taxon]
 aps[is.na(aps)] <- 0
 aps <- aps[order(Taxon),]
