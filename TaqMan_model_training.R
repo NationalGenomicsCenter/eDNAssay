@@ -163,12 +163,12 @@ trainmodel_taqman <-
     trControl = traincontrol,
     tuneGrid = tunegrid
   )
- save(trainmodel_taqman, file = "TaqMan_rf_model.RData")
+ save(trainmodel_taqman, file = "TaqMan_trained_model.RData")
 beep(sound = 1)
 
 ##################################################################################################
 ### Assess model performance
-load("TaqMan_RF_model.RData")
+load("TaqMan_trained_model.RData")
 print(trainmodel_taqman)
 
 # trainresults_taqman <- predict(trainmodel_taqman, type="prob") # To output assignment probabilities
