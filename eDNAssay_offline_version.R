@@ -8,20 +8,23 @@
 library(Biostrings)
 library(dplyr)
 
-### Specify input FAS file containing aligned sequences; oligo (primer and probe) sequences must
-### appear first, ordered as F, R, P; oligos must have complete overlap with templates; only IUPAC
-### nucleotide codes are allowed ("A" "C" "G" "T" "M" "R" "W" "S" "Y" "K" "V" "H" "D" "B" "N" "-" "+" ".")
+### Input a FASTA file containing aligned sequences. Primer and probe sequences must appear first,
+### ordered as forward primer, reverse primer, then probe; name oligonucleotides using four-letter 
+### codes followed by a space then a single-digit oligonucleotide signifier ("XXXX F", "XXXX R", and 
+### "XXXX P"); only IUPAC-approved characters are allowed (A, C, G, T, M, R, W, S, Y, K, V, H, D, B, 
+### N, -, +, and .); dashes (from indels or sequences not fully overlapping with the assay) are treated 
+### as Ns (any base) for a conservative estimate of assay specificity
 input_seqs <- readDNAStringSet(file.choose())
 
-### Specify input CSV file containing metadata; rows must be ordered as in FAS file and there must be three columns:
-### "Taxon" = taxon name, "Name" = sequence name (for oligos, name using four-letter codes as "XXXX F", "XXXX R", and
-### "XXXX P"), and "Type" = sequence type ("Oligo" or "Template")
+### Input a CSV file containing metadata, with rows ordered as in the FASTA file. There must be 
+### three columns: Taxon = taxon name, Name = sequence name (for oligos, name as in the FASTA file),
+### and Type = sequence type ("Oligo" or "Template")
 input_metadata <- read.csv(file.choose())
 
 ### Specify melting temperatures most closely matching your reaction conditions
-F_Tm <- 58.9
-R_Tm <- 59.3
-P_Tm <- 69
+F_Tm <- 60
+R_Tm <- 60
+P_Tm <- 70
 
 ### Specify output CSV file
 output_mismatches <- "Assay_mismatches.csv"
@@ -998,7 +1001,6 @@ write.csv(testdata, output_mismatches, row.names = FALSE)
 
 ##################################################################################################
 ### Load training model and predict amplification
-# testdata <- read.csv(file.choose())
 load("TaqMan_trained_model.RData")
 
 prediction <-

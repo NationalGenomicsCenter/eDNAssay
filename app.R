@@ -100,12 +100,12 @@ ui <- tagList(
                 br(),
                 p(
                     (
-                        'Input a .fas file containing aligned sequences. Primer and probe sequences must appear first,
+                        'Input a FASTA file containing aligned sequences. Primer and probe sequences must appear first,
                         ordered as forward primer, reverse primer, then probe; name using four-letter codes followed by
                         a space then a single-digit oligonucleotide signifier ("XXXX F", "XXXX R", and "XXXX P").
-                        Oligonucleotides must have complete overlap with templates. Only IUPAC-approved characters are
-                        allowed (A, C, G, T, M, R, W, S, Y, K, V, H, D, B, N, -, +, and .). Any dashes (indels) present
-                        are treated as Ns (any base) for a conservative estimate of assay specificity. See this'
+                        Only IUPAC-approved characters are allowed (A, C, G, T, M, R, W, S, Y, K, V, H, D, B, N, -, +, and .). 
+                        Dashes (from indels or sequences not fully overlapping with the assay) are treated as Ns (any base) 
+                        for a conservative estimate of assay specificity. See this'
                     ),
                     a(
                         href = "FVIR_alignment.fas",
@@ -116,11 +116,11 @@ ui <- tagList(
                     "for additional guidance."
                 ),
                 
-                fileInput("alignment", "Aligned FASTA file (.fas)"),
+                fileInput("alignment", "Aligned sequence file (.fas)"),
                 p(
                     (
-                        'Input a .csv file containing metadata, with rows ordered as in the .fas file. There must
-                        be three columns: Taxon = taxon name, Name = sequence name (for oligos, name as in FASTA file),
+                        'Input a CSV file containing metadata, with rows ordered as in the FASTA file. There must be 
+                        three columns: Taxon = taxon name, Name = sequence name (for oligos, name as in the FASTA file),
                         and Type = sequence type ("Oligo" or "Template"). See this'
                     ),
                     a(

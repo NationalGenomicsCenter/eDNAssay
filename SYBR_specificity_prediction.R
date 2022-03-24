@@ -8,14 +8,17 @@
 library(Biostrings)
 library(dplyr)
 
-### Specify input FAS file containing aligned sequences; oligo sequences must appear first, ordered
-### as forward then reverse primer; oligos must have complete overlap with templates; only IUPAC
-### nucleotide codes are allowed ("A" "C" "G" "T" "M" "R" "W" "S" "Y" "K" "V" "H" "D" "B" "N" "-" "+" ".")
+### Input a FASTA file containing aligned sequences. Primer sequences must appear first, ordered 
+### as forward primer and then reverse primer; name oligonucleotides using four-letter codes 
+### followed by a space then a single-digit oligonucleotide signifier ("XXXX F" and "XXXX R"); 
+### only IUPAC-approved characters are allowed (A, C, G, T, M, R, W, S, Y, K, V, H, D, B, N, -, 
+### +, and .); dashes (from indels or sequences not fully overlapping with the assay) are treated 
+### as Ns (any base) for a conservative estimate of assay specificity
 input_seqs <- readDNAStringSet(file.choose())
 
-### Specify input CSV file containing metadata; rows must be ordered as in FAS file and there must be
-### three columns: "Taxon" = taxon name, "Name" = sequence name (for oligos, name using four-letter codes
-### as "XXXX F" and "XXXX R"), and "Type" = sequence type ("Oligo" or "Template")
+### Input a CSV file containing metadata, with rows ordered as in the FASTA file. There must be 
+### three columns: Taxon = taxon name, Name = sequence name (for oligos, name as in the FASTA file),
+### and Type = sequence type ("Oligo" or "Template")
 input_metadata <- read.csv(file.choose())
 
 ### Specify melting temperatures most closely matching your reaction conditions
@@ -761,6 +764,7 @@ write.csv(testdata, output_mismatches, row.names = FALSE)
 ##################################################################################################
 ### Load training model and predict amplification
 load("SYBR_trained_model.RData")
+
 prediction <-
   predict(trainmodel_sybr, newdata = testdata, type = "prob") # Predict results of test data
 prediction <- cbind(testdata[, 1:3], prediction[, 1])
