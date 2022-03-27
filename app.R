@@ -80,7 +80,7 @@ ui <- tagList(
             hr(),
             p(
                 paste(
-                    'Welcome to eDNAssay! This tool uses supervised machine learning to predict qPCR assay specificity, particuarly
+                    'Welcome to eDNAssay! This tool uses supervised machine learning to predict qPCR assay specificity, particularly
         as applied to environmental samples. Simply input aligned sequences and brief metadata. For each template, a
         binary classification model \U2012 trained on TaqMan qPCR results \U2012 outputs the probability of being assigned
         to the "amplify" class. In addition, the Optimize Threshold page can be used to lower the assignment probability
