@@ -1417,11 +1417,11 @@ server <- function(input, output) {
             as.numeric(paste(testdata$CC.P / testdata$Pmm_total)) # Proportion
         
         testdata$F_length <-
-            length(input_matrix[1, 5:ncol(input_matrix)]) - sum(is.na(input_matrix[1,]))
+            length(input_matrix[1, 4:ncol(input_matrix)]) - sum(is.na(input_matrix[1,]))
         testdata$R_length <-
-            length(input_matrix[2, 5:ncol(input_matrix)]) - sum(is.na(input_matrix[2,]))
+            length(input_matrix[2, 4:ncol(input_matrix)]) - sum(is.na(input_matrix[2,]))
         testdata$P_length <-
-            length(input_matrix[3, 5:ncol(input_matrix)]) - sum(is.na(input_matrix[3,]))
+            length(input_matrix[3, 4:ncol(input_matrix)]) - sum(is.na(input_matrix[3,]))
         testdata$FR_length <-
             as.numeric(paste((
                 testdata$F_length + testdata$R_length
