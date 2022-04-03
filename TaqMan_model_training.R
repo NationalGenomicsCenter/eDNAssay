@@ -25,7 +25,7 @@ table(traindata$Results) # Binary outcomes not very equal
 
 ### Balance class variables using SMOTE
 traindatas <-
-  SMOTE(traindata[,-28], traindata[, 28], dup_size = 2)
+  SMOTE(traindata[, -28], traindata[, 28], dup_size = 2)
 traindatas <- traindatas$data
 traindatas$class <- as.factor(traindatas$class)
 table(traindatas$class)
@@ -34,11 +34,11 @@ table(traindatas$class)
 nearZeroVar(traindatas, saveMetrics = TRUE)
 
 ### Assess highly correlated variables
-varcor <- cor(traindatas[, -28])
+varcor <- cor(traindatas[,-28])
 findCorrelation(varcor, cutoff = 0.75) # P_Tm correlated with F_Tmprop but okay
 
 ### Assess linearly dependent variables
-findLinearCombos(traindatas[,-28]) # No linearly dependent variables
+findLinearCombos(traindatas[, -28]) # No linearly dependent variables
 
 ### Normalizing data not necessary for random forest models
 
@@ -98,7 +98,7 @@ trainmodel_taqman$pred <-
 index_taqman <- trainmodel_taqman$pred$mtry == 2
 
 trainauc_taqman <-
-  ggplot(trainmodel_taqman$pred[index_taqman, ], aes(m = Amp, d = as.integer(obs))) +
+  ggplot(trainmodel_taqman$pred[index_taqman,], aes(m = Amp, d = as.integer(obs))) +
   geom_roc(n.cuts = 0, color = "black") + coord_equal() + style_roc() +
   ggtitle("ROC") +
   theme(plot.title = element_text(hjust = 0.5, size = 18)) +
