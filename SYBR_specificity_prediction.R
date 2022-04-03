@@ -16,11 +16,6 @@ library(dplyr)
 ### as Ns (any base) for a conservative estimate of assay specificity
 input_seqs <- readDNAStringSet(file.choose())
 
-### Input a CSV file containing metadata, with rows ordered as in the FASTA file. There must be 
-### three columns: Taxon = taxon name, Name = sequence name (for oligos, name as in the FASTA file),
-### and Type = sequence type ("Oligo" or "Template")
-input_metadata <- read.csv(file.choose())
-
 ### Specify melting temperatures most closely matching your reaction conditions
 F_Tm <- 60
 R_Tm <- 60
@@ -30,17 +25,40 @@ output_mismatches <- "Assay_mismatches.csv"
 output_probabilities <- "Assay_specificity.csv"
 
 ##################################################################################################
-### Combine matrices and save as a dataframe
+### Prepare sequence file
+### Compile metadata matrix
+names <- input_seqs@ranges@NAMES
+
+extract_name <- function(x) {
+  print(gsub(
+    "^[A-Z]+[^\\s]+\\s+([A-Z]+\\w+\\s+\\w+)\\s+.+",
+    replacement = "\\1",
+    x
+  ))
+}
+
+Taxon <- extract_name(names)
+Taxon[1:2] <- rep("Target", 2)
+
+Name <- names
+
+Type <- c(rep("Oligo", 2), rep("Template", length(names) - 2))
+
+input_metadata <-
+  data.frame(Taxon = Taxon, Name = Name, Type = Type)
 input_metadata <- as.matrix(input_metadata)
+
 input_seqs <- as.matrix(input_seqs)
+
+### Combine matrices and save as a dataframe
 input_matrix <- cbind(input_metadata, input_seqs)
 input_matrix <-
   as.data.frame(input_matrix, stringsAsFactors = FALSE)
 input_matrix <- na_if(input_matrix, "-")
 
 ### Convert "NA" in template sequences to "N" to accommodate indels
-input_matrix_oligos <- input_matrix[1:3, ]
-input_matrix_templates <- input_matrix[4:nrow(input_matrix), ]
+input_matrix_oligos <- input_matrix[1:2,]
+input_matrix_templates <- input_matrix[3:nrow(input_matrix),]
 input_matrix_templates[is.na(input_matrix_templates)] <- "N"
 input_matrix <- rbind(input_matrix_oligos, input_matrix_templates)
 
@@ -53,8 +71,35 @@ row.names(input_matrix) <- c(1:length_type)
 ### Create separate dataframes for each oligo and remove nucleotides outside oligo binding sites
 oligo_matrices <-
   lapply(1:length_oligo, function(x)
-    input_matrix[input_matrix$Type == "Template", -which(is.na(input_matrix[x,]))])
+    input_matrix[input_matrix$Type == "Template",-which(is.na(input_matrix[x, ]))])
 names(oligo_matrices) = input_matrix$Name[1:length_oligo]
+
+# ##################################################################################################
+# ### Combine matrices and save as a dataframe
+# input_metadata <- as.matrix(input_metadata)
+# input_seqs <- as.matrix(input_seqs)
+# input_matrix <- cbind(input_metadata, input_seqs)
+# input_matrix <-
+#   as.data.frame(input_matrix, stringsAsFactors = FALSE)
+# input_matrix <- na_if(input_matrix, "-")
+# 
+# ### Convert "NA" in template sequences to "N" to accommodate indels
+# input_matrix_oligos <- input_matrix[1:3, ]
+# input_matrix_templates <- input_matrix[4:nrow(input_matrix), ]
+# input_matrix_templates[is.na(input_matrix_templates)] <- "N"
+# input_matrix <- rbind(input_matrix_oligos, input_matrix_templates)
+# 
+# ### Define length variables and relabel rows
+# length_type <- length(input_matrix$Type)
+# length_oligo <- length(which(input_matrix$Type == "Oligo"))
+# length_template <- length(which(input_matrix$Type == "Template"))
+# row.names(input_matrix) <- c(1:length_type)
+# 
+# ### Create separate dataframes for each oligo and remove nucleotides outside oligo binding sites
+# oligo_matrices <-
+#   lapply(1:length_oligo, function(x)
+#     input_matrix[input_matrix$Type == "Template", -which(is.na(input_matrix[x,]))])
+# names(oligo_matrices) = input_matrix$Name[1:length_oligo]
 
 ##################################################################################################
 ### Match oligo and template sequences (accounting for IUPAC ambiguity codes) and count the number
@@ -642,25 +687,7 @@ mm_type_final$CC <- as.numeric(as.character(mm_type_final$CC))
 ### Combine dataframes, append new variables, and reshape
 testdata <- cbind(mm_final, mm_type_final)
 testdata$Oligo <- as.character(substring(testdata$Oligo, 6))
-testdata <-
-  testdata[, c(
-    "Assay",
-    "Oligo",
-    "Taxon",
-    "Name",
-    "Total_mm",
-    "End3p_mm",
-    "Term_mm",
-    "AA",
-    "AG",
-    "AC",
-    "TT",
-    "TG",
-    "TC",
-    "GG",
-    "CC"
-  )]
-testdata <- testdata[order(testdata$Assay, testdata$Taxon),]
+testdata <- testdata[, -c(9:13)] 
 
 ### Reshape dataframe to wide format
 testdata <- reshape(
@@ -689,8 +716,6 @@ testdata$FRmm_diff <-
   as.numeric(paste(abs(
     testdata$Total_mm.F - testdata$Total_mm.R
   )))
-testdata <-
-  mutate_at(testdata, "FRmm_diff", ~ replace(., is.na(.), 0))
 testdata$FRmm_3p <-
   as.numeric(paste((testdata$End3p_mm.F + testdata$End3p_mm.R) / (testdata$Total_mm.F + testdata$Total_mm.R)
   )) # Proportion
@@ -755,11 +780,13 @@ testdata <- subset(
   )
 )
 
+testdata <- testdata[order(testdata$Assay, testdata$Taxon),]
+
 is.nan.data.frame <- function(x)
   do.call(cbind, lapply(x, is.nan))
 testdata[is.nan(testdata)] <- 0
 
-write.csv(testdata, output_mismatches, row.names = FALSE)
+# write.csv(testdata, output_mismatches, row.names = FALSE)
 
 ##################################################################################################
 ### Load training model and predict amplification
