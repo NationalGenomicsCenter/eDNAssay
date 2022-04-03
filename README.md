@@ -18,7 +18,7 @@ of models under other reaction conditions before relying on them to declare spec
 - **SYBR_model_training.R** - Script used to train a random forest model to predict cross-amplification of SYBR Green-based qPCR assays.
 - **SYBR_trained_model.RData** - A learned model produced through SYBR Green model training (SYBR_model_training.R script).
 - **SYBR_specificity_prediction** - Script used to calculate base-pair mismatches between assay oligonucleotides and templates, and then assign templates
-probabilities of belonging to either the "amplify" or "non-amplify" class via the learned SYBR Green model (SYBR_trained_model.RData).
+probabilities of belonging to either the "amplify" or "non-amplify" class via the learned SYBR Green model (SYBR_trained_model.RData). A metadata input file is not necessary for this script to run.
 - **TaqMan_training_data.csv** - Empirical dataset containing information on base-pair mismatches, oligonucleotide characteristics, and the results of TaqMan-based qPCR tests. These data were used to train the TaqMan (full-assay) model.
 - **TaqMan_model_training.R** - Script used to train a random forest model to predict cross-amplification of TaqMan-based qPCR assays.
 - **TaqMan_trained_model.RData** - A learned model produced through TaqMan model training (TaqMan_model_training.R script), referred to as eDNAssay.
@@ -27,7 +27,7 @@ to false positive (FP) cost ratios. For a given FN:FP cost ratio, the threshold 
 - **TaqMan_optimal_thresholds.RData** - A vector of optimal thresholds for a range of FN:FP cost ratios, produced by the TaqMan_optimal_thresholds.R script.
 - **eDNAssay_offline_version.R** - Script used to calculate base-pair mismatches between assay oligonucleotides and templates, and then assign templates
 probabilities of belonging to either the "amplify" or "non-amplify" class via the learned TaqMan model (TaqMan_trained_model.RData). This may be used as an 
-alternative to the eDNAssay Shiny app.
+alternative to the eDNAssay Shiny app. A metadata input file is not necessary for this script to run.
 - **app.R** - Script behind the eDNAssay Shiny app.
 - **eDNAssay_alignment_example.fas** - An example sequence alignment file for use with the eDNAssay script and app.
 - **eDNAssay_metadata_example.csv** - An example metadata file for use with the eDNAssay script and app.
