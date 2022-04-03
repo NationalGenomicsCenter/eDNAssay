@@ -8,8 +8,6 @@ library(randomForest)
 library(beepr)
 library(plotROC)
 
-setwd("C:/Users/jkronenberger/Box/ESTCP/Assays")
-
 ### Select input CSV file containing training data
 traindata_all <-
   read.csv(file.choose(), header = TRUE) # Training data
