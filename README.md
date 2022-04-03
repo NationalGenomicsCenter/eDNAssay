@@ -8,7 +8,8 @@ suites of sequences that may very similar. To ensure assay specificity, eDNA pra
 (e.g., confamilials) within a pre-defined geographic area. Any taxa that are not deemed "different enough" in computer-based *in silico* testing must be 
 put through time- and resource-intensive, laboratory-based *in vitro* testing. However, the determination that an assay is "different enough" *in silico* 
 is often dubious. Instead of relying on thermodynamic models and simple mismatch heuristics (as do the vast majority of existing *in silico* tools) our 
-models have been trained on empirical data, and are exceptionally accurate as a result.
+models have been trained on empirical data, and are exceptionally accurate as a result. Results from the scripts in this repository will vary slightly from
+those in Kronenberger et al. (in review) depending on the seed selected.
 
 For optimal performance, we recommend users either 1) develop assays under the reaction conditions used to train these models or 2) test the accuracy 
 of models under other reaction conditions before relying on them to declare specificity. See Kronenberger et al. (in review) for details.
@@ -35,8 +36,6 @@ alternative to the eDNAssay Shiny app. A metadata input file is not necessary fo
 to ensure species names are consistant.
 - **eDNAssay_assignment_probability_stats.R** - Script used to calculate summary statistics (minimum, maximum, mean, and standard deviation of the mean) 
 of assignment probailties when multiple sequences are included per taxon.
-
-Model results will vary slightly from those in Kronenberger et al. (in review) depending on the seed selected.
 
 ## Contact information
 Please reach out to us at the [National Genomics Center for Wildlife and Fish Conservation](https://www.fs.usda.gov/rmrs/ngc) with any questions or comments. 
