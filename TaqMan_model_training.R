@@ -33,7 +33,7 @@ nearZeroVar(traindatas, saveMetrics = TRUE)
 
 ### Assess highly correlated variables
 varcor <- cor(traindatas[,-28])
-findCorrelation(varcor, cutoff = 0.75) # P_Tm correlated with F_Tmprop but okay
+findCorrelation(varcor, cutoff = 0.75) # No highly correlated variables
 
 ### Assess linearly dependent variables
 findLinearCombos(traindatas[, -28]) # No linearly dependent variables
