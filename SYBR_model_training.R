@@ -83,7 +83,7 @@ trainmodel_sybr$pred <-
   replace(trainmodel_sybr$pred, trainmodel_sybr$pred == "Amp", 1)
 trainmodel_sybr$pred <-
   replace(trainmodel_sybr$pred, trainmodel_sybr$pred == "NoAmp", 0)
-index_sybr <- trainmodel_sybr$pred$mtry == 7
+index_sybr <- trainmodel_sybr$pred$mtry == 3
 
 trainauc_sybr <-
   ggplot(trainmodel_sybr$pred[index_sybr,], aes(m = Amp, d = as.integer(obs))) +
