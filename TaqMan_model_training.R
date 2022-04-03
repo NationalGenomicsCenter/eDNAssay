@@ -14,7 +14,7 @@ traindata_all <-
 
 ### Select variables of interest
 traindata <-
-  subset.data.frame(traindata_all, select = c(4, 5, 7:19, 21:32, 34))
+  subset.data.frame(traindata_all, select = c(4:31))
 
 ##################################################################################################
 ### Pre-process TaqMan data prior to cross-validation
