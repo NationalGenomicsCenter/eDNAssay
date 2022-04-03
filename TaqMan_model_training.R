@@ -8,135 +8,37 @@ library(randomForest)
 library(beepr)
 library(plotROC)
 
+setwd("C:/Users/jkronenberger/Box/ESTCP/Assays")
+
 ### Select input CSV file containing training data
-traindata <- read.csv(file.choose(), header = TRUE) # Training data
+traindata_all <-
+  read.csv(file.choose(), header = TRUE) # Training data
 
-##################################################################################################
-### Define variables of interest and create training dataframe
-Assay <- as.factor(traindata$Assay)
-Species <- as.factor(traindata$Species)
-FRmm_total <- as.numeric(traindata$FRmm_total)
-FRmm_diff <- as.numeric(traindata$FRmm_diff) # Normalized difference
-FRmm_3p <-
-  as.numeric(paste(traindata$FRmm_3p / FRmm_total)) # Proportion
-FRmm_term <-
-  as.numeric(paste(traindata$FRmm_term / FRmm_total)) #Proportion
-FRmm_AA <-
-  as.numeric(paste(traindata$FRmm_AA / FRmm_total)) # Proportion
-FRmm_AG <-
-  as.numeric(paste(traindata$FRmm_AG / FRmm_total)) # Proportion
-FRmm_AC <-
-  as.numeric(paste(traindata$FRmm_AC / FRmm_total)) # Proportion
-FRmm_TT <-
-  as.numeric(paste(traindata$FRmm_TT / FRmm_total)) # Proportion
-FRmm_TG <-
-  as.numeric(paste(traindata$FRmm_TG / FRmm_total)) # Proportion
-FRmm_TC <-
-  as.numeric(paste(traindata$FRmm_TC / FRmm_total)) # Proportion
-FRmm_GG <-
-  as.numeric(paste(traindata$FRmm_GG / FRmm_total)) # Proportion
-FRmm_CC <-
-  as.numeric(paste(traindata$FRmm_CC / FRmm_total)) # Proportion
-FR_length <-
-  as.numeric(paste((traindata$F_length + traindata$R_length) / 2)) # Mean
-FR_Tm <-
-  as.numeric(paste((traindata$F_Tm + traindata$R_Tm) / 2)) # Mean
-FR_Tmdiff <-
-  as.numeric(paste(abs(traindata$F_Tm - traindata$R_Tm))) # Raw difference
-FR_GC <-
-  as.numeric(paste((traindata$F_GC + traindata$R_GC) / 2)) # Mean
-Pmm_total <- as.numeric(traindata$Pmm_total)
-Pmm_center <-
-  as.numeric(paste(traindata$Pmm_center / Pmm_total)) # Proportion
-Pmm_AA <-
-  as.numeric(paste(traindata$Pmm_AA / Pmm_total)) # Proportion
-Pmm_AG <-
-  as.numeric(paste(traindata$Pmm_AG / Pmm_total)) # Proportion
-Pmm_AC <-
-  as.numeric(paste(traindata$Pmm_AC / Pmm_total)) # Proportion
-Pmm_TT <-
-  as.numeric(paste(traindata$Pmm_TT / Pmm_total)) # Proportion
-Pmm_TG <-
-  as.numeric(paste(traindata$Pmm_TG / Pmm_total)) # Proportion
-Pmm_TC <-
-  as.numeric(paste(traindata$Pmm_TC / Pmm_total)) # Proportion
-Pmm_GG <-
-  as.numeric(paste(traindata$Pmm_GG / Pmm_total)) # Proportion
-Pmm_CC <-
-  as.numeric(paste(traindata$Pmm_CC / Pmm_total)) # Proportion
-P_length <- as.numeric(traindata$P_length)
-P_Tm <- as.numeric(traindata$P_Tm)
-P_GC <- as.numeric(traindata$P_GC)
-TaqMan_results <- as.factor(traindata$TaqMan_results)
-
+### Select variables of interest
 traindata <-
-  data.frame(
-    Assay,
-    Species,
-    FRmm_total,
-    FRmm_diff,
-    FRmm_3p,
-    FRmm_term,
-    FRmm_AA,
-    FRmm_AG,
-    FRmm_AC,
-    FRmm_TT,
-    FRmm_TG,
-    FRmm_TC,
-    FRmm_GG,
-    FRmm_CC,
-    FR_length,
-    FR_Tm,
-    FR_Tmdiff,
-    FR_GC,
-    Pmm_total,
-    Pmm_center,
-    Pmm_AA,
-    Pmm_AG,
-    Pmm_AC,
-    Pmm_TT,
-    Pmm_TG,
-    Pmm_TC,
-    Pmm_GG,
-    Pmm_CC,
-    P_length,
-    P_Tm,
-    P_GC,
-    TaqMan_results
-  )
-
-is.nan.data.frame <- function(x)
-  do.call(cbind, lapply(x, is.nan))
-traindata[is.nan(traindata)] <- 0
-
-traindata <-
-  subset.data.frame(traindata, select = c(3:32))
+  subset.data.frame(traindata_all, select = c(4, 5, 7:19, 21:32, 34))
 
 ##################################################################################################
 ### Pre-process TaqMan data prior to cross-validation
 ### Assess response variable distribution
-table(traindata$TaqMan_results) # Binary outcomes not very equal
+table(traindata$Results) # Binary outcomes not very equal
 
 ### Balance class variables using SMOTE
-traindata_taqmans <-
-  SMOTE(traindata[, -30], traindata[, 30], dup_size = 2)
-traindata_taqmans <- traindata_taqmans$data
-traindata_taqmans$class <- as.factor(traindata_taqmans$class)
-table(traindata_taqmans$class)
+traindatas <-
+  SMOTE(traindata[,-28], traindata[, 28], dup_size = 2)
+traindatas <- traindatas$data
+traindatas$class <- as.factor(traindatas$class)
+table(traindatas$class)
 
 ### Assess variables with zero or near zero-variance (can affect model performance, but random forest impervious to them)
-nearZeroVar(traindata_taqmans, saveMetrics = TRUE)
+nearZeroVar(traindatas, saveMetrics = TRUE)
 
 ### Assess highly correlated variables
-varcor <- cor(traindata_taqmans[,-30])
-findCorrelation(varcor, cutoff = 0.75) # Length strongly correlated with GC content
-
-### Remove GC content
-traindata_taqmans <-
-  subset.data.frame(traindata_taqmans, select = -c(16, 29))
+varcor <- cor(traindatas[, -28])
+findCorrelation(varcor, cutoff = 0.75) # P_Tm correlated with F_Tmprop but okay
 
 ### Assess linearly dependent variables
-findLinearCombos(traindata_taqmans[, -28]) # No linearly dependent variables
+findLinearCombos(traindatas[,-28]) # No linearly dependent variables
 
 ### Normalizing data not necessary for random forest models
 
@@ -156,14 +58,14 @@ set.seed(1111)
 trainmodel_taqman <-
   train(
     class ~ .,
-    data = traindata_taqmans,
+    data = traindatas,
     method = "rf",
     ntree = 1000,
     metric = "Recall",
     trControl = traincontrol,
     tuneGrid = tunegrid
   )
- save(trainmodel_taqman, file = "TaqMan_trained_model.RData")
+save(trainmodel_taqman, file = "TaqMan_trained_model.RData")
 beep(sound = 1)
 
 ##################################################################################################
@@ -175,7 +77,7 @@ print(trainmodel_taqman)
 trainresults_taqman <- predict(trainmodel_taqman)
 traincm_taqman <-
   
-  confusionMatrix(trainresults_taqman, traindata_taqmans[, 28])
+  confusionMatrix(trainresults_taqman, traindatas[, 28])
 print(traincm_taqman)
 
 varImp(trainmodel_taqman, scale = TRUE)$importance
@@ -196,7 +98,7 @@ trainmodel_taqman$pred <-
 index_taqman <- trainmodel_taqman$pred$mtry == 2
 
 trainauc_taqman <-
-  ggplot(trainmodel_taqman$pred[index_taqman,], aes(m = Amp, d = as.integer(obs))) +
+  ggplot(trainmodel_taqman$pred[index_taqman, ], aes(m = Amp, d = as.integer(obs))) +
   geom_roc(n.cuts = 0, color = "black") + coord_equal() + style_roc() +
   ggtitle("ROC") +
   theme(plot.title = element_text(hjust = 0.5, size = 18)) +
