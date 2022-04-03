@@ -7,8 +7,8 @@ The impetus for building these models was to streamline development of environme
 suites of sequences that may very similar. To ensure assay specificity, eDNA practitioners typically evaluate sequences from all closely related taxa 
 (e.g., confamilials) within a pre-defined geographic area. Any taxa that are not deemed "different enough" in computer-based *in silico* testing must be 
 put through time- and resource-intensive, laboratory-based *in vitro* testing. However, the determination that an assay is "different enough" *in silico* 
-is often dubious. Instead of relying on thermodynamic models and simple mismatch heuristics (as do the vast majority of existing *in silico* tools) our 
-models have been trained on empirical data, and are exceptionally accurate as a result. Results from the scripts in this repository will vary slightly from
+is often dubious. Instead of relying on thermodynamic models and simple mismatch heuristics (as do the vast majority of existing *in silico* tools), our 
+models have been trained on empirical data and are therefore exceptionally accurate. Results from the scripts in this repository will vary slightly from
 those in Kronenberger et al. (in review) depending on the seed selected.
 
 For optimal performance, we recommend users either 1) develop assays under the reaction conditions used to train these models or 2) test the accuracy 
