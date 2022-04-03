@@ -13,7 +13,7 @@ traindata_all <-
 
 ### Select variables of interest
 traindata <-
-  subset.data.frame(traindata_all, select = c(4, 5, 7:19, 22))
+  subset.data.frame(traindata_all, select = c(4:19))
 
 ##################################################################################################
 ### Pre-process SYBR data prior to cross-validation
@@ -21,11 +21,11 @@ traindata <-
 table(traindata$Results) # Binary outcomes are roughly equal
 
 ### Assess highly correlated variables
-varcor <- cor(traindata[, -16])
+varcor <- cor(traindata[,-16])
 findCorrelation(varcor, cutoff = 0.75) # No highly correlated variables
 
 ### Assess linearly dependent variables
-findLinearCombos(traindata[, -16]) # No linearly dependent predictors
+findLinearCombos(traindata[,-16]) # No linearly dependent predictors
 
 ### Normalizing data not necessary for random forest models
 
@@ -86,7 +86,7 @@ trainmodel_sybr$pred <-
 index_sybr <- trainmodel_sybr$pred$mtry == 7
 
 trainauc_sybr <-
-  ggplot(trainmodel_sybr$pred[index_sybr, ], aes(m = Amp, d = as.integer(obs))) +
+  ggplot(trainmodel_sybr$pred[index_sybr,], aes(m = Amp, d = as.integer(obs))) +
   geom_roc(n.cuts = 0, color = "black") + coord_equal() + style_roc() +
   ggtitle("ROC") +
   theme(plot.title = element_text(hjust = 0.5, size = 18)) +
