@@ -36,6 +36,8 @@ to ensure species names are consistant.
 - **eDNAssay_assignment_probability_stats.R** - Script used to calculate summary statistics (minimum, maximum, mean, and standard deviation of the mean) 
 of assignment probailties when multiple sequences are included per taxon.
 
+Model results will vary slightly from those in Kronenberger et al. (in review) depending on the seed selected.
+
 ## Contact information
 Please reach out to us at the [National Genomics Center for Wildlife and Fish Conservation](https://www.fs.usda.gov/rmrs/ngc) with any questions or comments. 
 Scripts and models were created by Taylor Wilcox at taylor.wilcox@usda.gov and John Kronenberger at john.kronenberger@usda.gov.
