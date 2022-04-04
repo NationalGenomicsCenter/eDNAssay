@@ -93,7 +93,7 @@ trainmodel_taqman$pred <-
   replace(trainmodel_taqman$pred, trainmodel_taqman$pred == "Amp", 1)
 trainmodel_taqman$pred <-
   replace(trainmodel_taqman$pred, trainmodel_taqman$pred == "NoAmp", 0)
-index_taqman <- trainmodel_taqman$pred$mtry == 2
+index_taqman <- trainmodel_taqman$pred$mtry == 4
 
 trainauc_taqman <-
   ggplot(trainmodel_taqman$pred[index_taqman,], aes(m = Amp, d = as.integer(obs))) +
