@@ -1,29 +1,18 @@
 ##################################################################################################
-### Script parses a metadata file from an alignment, formatted for eDNAssay
+### Script parses a metadata file for eDNAssay from an alignment that uses GenBank names
 ##################################################################################################
 library(Biostrings)
+library(stringr)
 
-target_taxon <- "Target"
+alignment <- readDNAStringSet(file.choose(), format = "fasta") # FASTA file
+name <- alignment@ranges@NAMES
+name <- gsub("NC ", "NC", name)
 
-fasta <-
-  readDNAStringSet(file.choose(), format = "fasta") # FASTA file
+taxon <- word(name, start = 2, end=3, sep = fixed(" "))
+taxon[1:3] <- rep("Target", 3)
 
-names <- fasta@ranges@NAMES
+type <- c(rep("Oligo", 3), rep("Template", length(name) - 3))
 
-extract_name <- function(x) {
-  print(gsub(
-    "^[A-Z]+[^\\s]+\\s+([A-Z]+\\w+\\s+\\w+)\\s+.+",
-    replacement = "\\1",
-    x
-  ))
-}
+metadata <- data.frame(Taxon = taxon, Name = name, Type = type)
 
-Taxon <- extract_name(names)
-Taxon[1:3] <- rep(target_taxon, 3)
-
-Name <- names
-
-Type <- c(rep("Oligo", 3), rep("Template", length(names) - 3))
-
-metadata <- data.frame(Taxon = Taxon, Name = Name, Type = Type)
-write.csv(metadata, "Metadata.csv", row.names = FALSE)
+write.csv(metadata, "eDNAssay_metadata.csv", row.names = FALSE)
