@@ -28,12 +28,11 @@ to false positive (FP) cost ratios. For a given FN:FP cost ratio, the threshold 
 - **TaqMan_optimal_thresholds.RData** - A vector of optimal thresholds for a range of FN:FP cost ratios, produced by the TaqMan_optimal_thresholds.R script.
 - **eDNAssay_offline_version.R** - Script used to calculate base-pair mismatches between assay oligonucleotides and templates, and then assign templates
 probabilities of belonging to either the "amplify" or "non-amplify" class via the learned TaqMan model (TaqMan_trained_model.RData). This may be used as an 
-alternative to the eDNAssay Shiny app. A metadata input file is not necessary for this script to run.
+alternative to the eDNAssay Shiny app.
 - **app.R** - Script behind the eDNAssay Shiny app.
 - **eDNAssay_alignment_example.fas** - An example sequence alignment file for use with the eDNAssay script and app.
 - **eDNAssay_metadata_example.csv** - An example metadata file for use with the eDNAssay script and app.
-- **eDNAssay_metadata_parse.R** - Script used to parse a .fas file into a .csv file formatted for use with eDNAssay. Some post-processing may be desired 
-to ensure species names are consistant.
+- **eDNAssay_metadata_parse.R** - Script used to parse a FASTA file into a CSV file formatted for use with eDNAssay. Sequences must be named as in GenBank.
 - **eDNAssay_assignment_probability_stats.R** - Script used to calculate summary statistics (minimum, maximum, mean, and standard deviation of the mean) 
 of assignment probailties when multiple sequences are included per taxon.
 
