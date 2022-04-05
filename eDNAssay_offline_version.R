@@ -16,6 +16,11 @@ library(dplyr)
 ### as Ns (any base) for a conservative estimate of assay specificity
 input_seqs <- readDNAStringSet(file.choose())
 
+### Input a CSV file containing metadata, with rows ordered as in the FASTA file. There must be 
+### three columns: Taxon = taxon name, Name = sequence name (for oligos, name as in the FASTA file),
+### and Type = sequence type ("Oligo" or "Template")
+input_metadata <- read.csv(file.choose())
+
 ### Specify melting temperatures most closely matching your reaction conditions
 F_Tm <- 60
 R_Tm <- 60
@@ -26,32 +31,9 @@ output_mismatches <- "Assay_mismatches.csv"
 output_probabilities <- "Assay_specificity.csv"
 
 ##################################################################################################
-### Prepare sequence file
-### Compile metadata matrix
-names <- input_seqs@ranges@NAMES
-
-extract_name <- function(x) {
-  print(gsub(
-    "^[A-Z]+[^\\s]+\\s+([A-Z]+\\w+\\s+\\w+)\\s+.+",
-    replacement = "\\1",
-    x
-  ))
-}
-
-Taxon <- extract_name(names)
-Taxon[1:3] <- rep("Target", 3)
-
-Name <- names
-
-Type <- c(rep("Oligo", 3), rep("Template", length(names) - 3))
-
-input_metadata <-
-  data.frame(Taxon = Taxon, Name = Name, Type = Type)
-input_metadata <- as.matrix(input_metadata)
-
-input_seqs <- as.matrix(input_seqs)
-
 ### Combine matrices and save as a dataframe
+input_metadata <- as.matrix(input_metadata)
+input_seqs <- as.matrix(input_seqs)
 input_matrix <- cbind(input_metadata, input_seqs)
 input_matrix <-
   as.data.frame(input_matrix, stringsAsFactors = FALSE)
