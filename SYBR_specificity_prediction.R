@@ -699,7 +699,7 @@ testdata$FRmm_total <-
 testdata$FRmm_diff <-
   as.numeric(paste(abs(
     testdata$Total_mm.F - testdata$Total_mm.R
-  )))
+  )/(testdata$Total_mm.F + testdata$Total_mm.R)))
 testdata$FRmm_3p <-
   as.numeric(paste((testdata$End3p_mm.F + testdata$End3p_mm.R) / (testdata$Total_mm.F + testdata$Total_mm.R)
   )) # Proportion
