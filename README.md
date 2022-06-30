@@ -16,16 +16,19 @@ of models under other reaction conditions before relying on them to declare spec
 
 ## File guide
 - **SYBR_training_data.csv** - Empirical dataset containing information on base-pair mismatches, oligonucleotide characteristics, and the results of SYBR Green-based qPCR tests. These data were used to train the SYBR Green (primer-only) model.
+- **SYBR_testing_data.csv** - Empirical dataset containing information on base-pair mismatches, oligonucleotide characteristics, and the results of SYBR Green-based qPCR tests. These data were used to test the SYBR Green (primer-only) model.
 - **SYBR_model_training.R** - Script used to train a random forest model to predict cross-amplification of SYBR Green-based qPCR assays.
 - **SYBR_trained_model.RData** - A learned model produced through SYBR Green model training (SYBR_model_training.R script).
 - **SYBR_specificity_prediction** - Script used to calculate base-pair mismatches between assay oligonucleotides and templates, and then assign templates
 probabilities of belonging to either the "amplify" or "non-amplify" class via the learned SYBR Green model (SYBR_trained_model.RData).
 - **TaqMan_training_data.csv** - Empirical dataset containing information on base-pair mismatches, oligonucleotide characteristics, and the results of TaqMan-based qPCR tests. These data were used to train the TaqMan (full-assay) model.
+- **TaqMan_testing_data.csv** - Empirical dataset containing information on base-pair mismatches, oligonucleotide characteristics, and the results of TaqMan-based qPCR tests. These data were used to test the TaqMan (full-assay) model.
 - **TaqMan_model_training.R** - Script used to train a random forest model to predict cross-amplification of TaqMan-based qPCR assays.
 - **TaqMan_trained_model.RData** - A learned model produced through TaqMan model training (TaqMan_model_training.R script), referred to as eDNAssay.
 - **TaqMan_optimal_thresholds.R** - Script used to calculate optimal class assignment probability thresholds for a range of false negative (FN)
 to false positive (FP) cost ratios. For a given FN:FP cost ratio, the threshold that results in the lowest total error cost is optimal.
 - **TaqMan_optimal_thresholds.RData** - A vector of optimal thresholds for a range of FN:FP cost ratios, produced by the TaqMan_optimal_thresholds.R script.
+This file is used by app.R.
 - **eDNAssay_offline_version.R** - Script used to calculate base-pair mismatches between assay oligonucleotides and templates, and then assign templates
 probabilities of belonging to either the "amplify" or "non-amplify" class via the learned TaqMan model (TaqMan_trained_model.RData). This may be used as an 
 alternative to the eDNAssay Shiny app.
