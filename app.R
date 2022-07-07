@@ -83,10 +83,10 @@ ui <- tagList(
                 "for more information."
             ),
             p(
-                "For optimal performance: 1) the reaction conditions from Kronenberger et al. (2022) should be used or the model
-            re-trained using the conditions of choice, 2) the melting temperatures should be ~58-60 C
-            for primers and ~68-70 C for probes, and 3) the forward primer and probe should anneal to the antisense strand
-              and the reverse primer to the sense strand. Accuracy has not been tested outside these parameters."
+                "For optimal performance: 1) reaction conditions from Kronenberger et al. (2022) should be used or the model
+            retrained using the conditions of choice, 2) melting temperatures should be ~58-60 C
+            for primers and ~68-70 C for probes, and 3) forward primers and probes should anneal to the antisense strand
+              and reverse primers to the sense strand. Accuracy has not been tested outside these parameters."
             ),
             br(),
             
@@ -299,7 +299,7 @@ ui <- tagList(
                 p(
                     paste("See our"),
                     a(href = "https://github.com/NationalGenomicsCenter/eDNAssay", "GitHub repository", target = "_blank"),
-                    "for the underlying data and code. This repository also contains a model trained on SYBR Green qPCR results."
+                    "for the training data and code. This repository also contains a SYBR Green-based primer-only model."
                 ),
                 hr(),
                 
@@ -307,9 +307,11 @@ ui <- tagList(
                 p("UPDATED JANUARY 2022"),
                 p(
                     "eDNAssay was designed to improve over time as training data is added the underlying
-          model.Current training data includes results from 10 assays paired with 89 synthetic gene fragments for 268 independent tests
-          of assay specificity. Model performance was assessed using 10-fold cross-validation with 10 repeats. Predictions were 100% accurate.
-          See the confusion matrix and receiver operating characteristic (ROC) curve with area under the curve (AUC) below."
+          model.Current training data includes results from 10 assays paired with 82 synthetic gene fragments for 268 tests
+          of assay specificity. Model performance was assessed using 10-fold cross-validation with 10 repeats. Predictions were 100%
+          accurate in cross-validation and 96.5% accurate in 144 tests of 6 new assays not used in model training. See the
+          cross-validation results below, including a confusion matrix and receiver operating characteristic (ROC) curve along with
+          the area under the curve (AUC)."
                 ),
                 img(
                     src = "eDNAssay_performance.jpeg",
@@ -383,9 +385,9 @@ server <- function(input, output) {
         input_matrix <- na_if(input_matrix, "-")
         
         ### Convert "NA" in template sequences to "N" to accommodate indels
-        input_matrix_oligos <- input_matrix[1:3,]
+        input_matrix_oligos <- input_matrix[1:3, ]
         input_matrix_templates <-
-            input_matrix[4:nrow(input_matrix),]
+            input_matrix[4:nrow(input_matrix), ]
         input_matrix_templates[is.na(input_matrix_templates)] <- "N"
         input_matrix <-
             rbind(input_matrix_oligos, input_matrix_templates)
@@ -400,7 +402,7 @@ server <- function(input, output) {
         ### Create separate dataframes for each oligo and remove nucleotides outside oligo binding sites
         oligo_matrices <-
             lapply(1:length_oligo, function(x)
-                input_matrix[input_matrix$Type == "Template",-which(is.na(input_matrix[x, ]))])
+                input_matrix[input_matrix$Type == "Template", -which(is.na(input_matrix[x,]))])
         names(oligo_matrices) = input_matrix$Name[1:length_oligo]
         
         ### Match oligo and template sequences (accounting for IUPAC ambiguity codes) and count the number
@@ -415,125 +417,125 @@ server <- function(input, output) {
         
         for (i in 1:length_oligo) {
             ot_match[[i]] <-
-                rbind(input_matrix[i, -which(is.na(input_matrix[i, ]))],
+                rbind(input_matrix[i,-which(is.na(input_matrix[i,]))],
                       oligo_matrices[[which(names(oligo_matrices) ==
                                                 input_matrix[i, 2])]])
             mm_list[[i]] <-
                 lapply(2:(length_template + 1), function(x)
                     ifelse(
-                        ot_match[[i]][1, -(1:3)] == ot_match[[i]][x, -(1:3)] |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "R" & ot_match[[i]][x, -(1:3)] == "A" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "R" & ot_match[[i]][x, -(1:3)] == "G" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "Y" & ot_match[[i]][x, -(1:3)] == "C" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "Y" & ot_match[[i]][x, -(1:3)] == "T" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "M" & ot_match[[i]][x, -(1:3)] == "A" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "M" & ot_match[[i]][x, -(1:3)] == "C" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "K" & ot_match[[i]][x, -(1:3)] == "G" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "K" & ot_match[[i]][x, -(1:3)] == "T" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "S" & ot_match[[i]][x, -(1:3)] == "G" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "S" & ot_match[[i]][x, -(1:3)] == "C" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "W" & ot_match[[i]][x, -(1:3)] == "A" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "W" & ot_match[[i]][x, -(1:3)] == "T" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "B" & ot_match[[i]][x, -(1:3)] == "C" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "B" & ot_match[[i]][x, -(1:3)] == "G" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "B" & ot_match[[i]][x, -(1:3)] == "T" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "D" & ot_match[[i]][x, -(1:3)] == "A" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "D" & ot_match[[i]][x, -(1:3)] == "G" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "D" & ot_match[[i]][x, -(1:3)] == "T" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "H" & ot_match[[i]][x, -(1:3)] == "A" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "H" & ot_match[[i]][x, -(1:3)] == "C" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "H" & ot_match[[i]][x, -(1:3)] == "T" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "V" & ot_match[[i]][x, -(1:3)] == "A" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "V" & ot_match[[i]][x, -(1:3)] == "C" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "V" & ot_match[[i]][x, -(1:3)] == "G" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "N" & ot_match[[i]][x, -(1:3)] == "A" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "N" & ot_match[[i]][x, -(1:3)] == "C" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "N" & ot_match[[i]][x, -(1:3)] == "G" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "N" & ot_match[[i]][x, -(1:3)] == "T" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "A" & ot_match[[i]][x, -(1:3)] == "R" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "G" & ot_match[[i]][x, -(1:3)] == "R" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "C" & ot_match[[i]][x, -(1:3)] == "Y" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "T" & ot_match[[i]][x, -(1:3)] == "Y" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "A" & ot_match[[i]][x, -(1:3)] == "M" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "C" & ot_match[[i]][x, -(1:3)] == "M" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "G" & ot_match[[i]][x, -(1:3)] == "K" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "T" & ot_match[[i]][x, -(1:3)] == "K" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "G" & ot_match[[i]][x, -(1:3)] == "S" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "C" & ot_match[[i]][x, -(1:3)] == "S" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "A" & ot_match[[i]][x, -(1:3)] == "W" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "T" & ot_match[[i]][x, -(1:3)] == "W" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "C" & ot_match[[i]][x, -(1:3)] == "B" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "G" & ot_match[[i]][x, -(1:3)] == "B" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "T" & ot_match[[i]][x, -(1:3)] == "B" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "A" & ot_match[[i]][x, -(1:3)] == "D" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "G" & ot_match[[i]][x, -(1:3)] == "D" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "T" & ot_match[[i]][x, -(1:3)] == "D" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "A" & ot_match[[i]][x, -(1:3)] == "H" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "C" & ot_match[[i]][x, -(1:3)] == "H" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "T" & ot_match[[i]][x, -(1:3)] == "H" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "A" & ot_match[[i]][x, -(1:3)] == "V" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "C" & ot_match[[i]][x, -(1:3)] == "V" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "G" & ot_match[[i]][x, -(1:3)] == "V" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "A" & ot_match[[i]][x, -(1:3)] == "N" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "C" & ot_match[[i]][x, -(1:3)] == "N" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "G" & ot_match[[i]][x, -(1:3)] == "N" |
-                            ot_match[[i]][1, -(1:3)] ==
-                            "T" & ot_match[[i]][x, -(1:3)] == "N",
+                        ot_match[[i]][1,-(1:3)] == ot_match[[i]][x,-(1:3)] |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "R" & ot_match[[i]][x,-(1:3)] == "A" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "R" & ot_match[[i]][x,-(1:3)] == "G" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "Y" & ot_match[[i]][x,-(1:3)] == "C" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "Y" & ot_match[[i]][x,-(1:3)] == "T" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "M" & ot_match[[i]][x,-(1:3)] == "A" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "M" & ot_match[[i]][x,-(1:3)] == "C" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "K" & ot_match[[i]][x,-(1:3)] == "G" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "K" & ot_match[[i]][x,-(1:3)] == "T" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "S" & ot_match[[i]][x,-(1:3)] == "G" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "S" & ot_match[[i]][x,-(1:3)] == "C" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "W" & ot_match[[i]][x,-(1:3)] == "A" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "W" & ot_match[[i]][x,-(1:3)] == "T" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "B" & ot_match[[i]][x,-(1:3)] == "C" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "B" & ot_match[[i]][x,-(1:3)] == "G" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "B" & ot_match[[i]][x,-(1:3)] == "T" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "D" & ot_match[[i]][x,-(1:3)] == "A" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "D" & ot_match[[i]][x,-(1:3)] == "G" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "D" & ot_match[[i]][x,-(1:3)] == "T" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "H" & ot_match[[i]][x,-(1:3)] == "A" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "H" & ot_match[[i]][x,-(1:3)] == "C" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "H" & ot_match[[i]][x,-(1:3)] == "T" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "V" & ot_match[[i]][x,-(1:3)] == "A" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "V" & ot_match[[i]][x,-(1:3)] == "C" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "V" & ot_match[[i]][x,-(1:3)] == "G" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "N" & ot_match[[i]][x,-(1:3)] == "A" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "N" & ot_match[[i]][x,-(1:3)] == "C" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "N" & ot_match[[i]][x,-(1:3)] == "G" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "N" & ot_match[[i]][x,-(1:3)] == "T" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "A" & ot_match[[i]][x,-(1:3)] == "R" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "G" & ot_match[[i]][x,-(1:3)] == "R" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "C" & ot_match[[i]][x,-(1:3)] == "Y" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "T" & ot_match[[i]][x,-(1:3)] == "Y" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "A" & ot_match[[i]][x,-(1:3)] == "M" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "C" & ot_match[[i]][x,-(1:3)] == "M" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "G" & ot_match[[i]][x,-(1:3)] == "K" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "T" & ot_match[[i]][x,-(1:3)] == "K" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "G" & ot_match[[i]][x,-(1:3)] == "S" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "C" & ot_match[[i]][x,-(1:3)] == "S" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "A" & ot_match[[i]][x,-(1:3)] == "W" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "T" & ot_match[[i]][x,-(1:3)] == "W" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "C" & ot_match[[i]][x,-(1:3)] == "B" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "G" & ot_match[[i]][x,-(1:3)] == "B" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "T" & ot_match[[i]][x,-(1:3)] == "B" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "A" & ot_match[[i]][x,-(1:3)] == "D" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "G" & ot_match[[i]][x,-(1:3)] == "D" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "T" & ot_match[[i]][x,-(1:3)] == "D" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "A" & ot_match[[i]][x,-(1:3)] == "H" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "C" & ot_match[[i]][x,-(1:3)] == "H" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "T" & ot_match[[i]][x,-(1:3)] == "H" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "A" & ot_match[[i]][x,-(1:3)] == "V" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "C" & ot_match[[i]][x,-(1:3)] == "V" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "G" & ot_match[[i]][x,-(1:3)] == "V" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "A" & ot_match[[i]][x,-(1:3)] == "N" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "C" & ot_match[[i]][x,-(1:3)] == "N" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "G" & ot_match[[i]][x,-(1:3)] == "N" |
+                            ot_match[[i]][1,-(1:3)] ==
+                            "T" & ot_match[[i]][x,-(1:3)] == "N",
                         TRUE,
                         FALSE
                     ))
@@ -548,7 +550,7 @@ server <- function(input, output) {
             mm_unlist[[i]]$mm_term <-
                 as.numeric(mm_unlist[[i]][, ncol(mm_unlist[[i]])] == "FALSE")
             mm_unlist[[i]]$mm_total <-
-                rowSums(mm_unlist[[i]][, -ncol(mm_unlist[[i]])] == "FALSE", na.rm = TRUE)
+                rowSums(mm_unlist[[i]][,-ncol(mm_unlist[[i]])] == "FALSE", na.rm = TRUE)
             mm_unlist[[i]]$mm_end3p <-
                 rowSums(mm_unlist[[i]][, ((ncol(mm_unlist[[i]]) - 2 - 4):(ncol(mm_unlist[[i]]) -
                                                                               2))] == "FALSE")
@@ -609,21 +611,21 @@ server <- function(input, output) {
                 for (k in (j + 1)) {
                     aa_list[[i]] <- lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[i]][1, -(1:3)] == "A" &
-                                ot_match[[i]][x, -(1:3)] == "T",
+                            ot_match[[i]][1,-(1:3)] == "A" &
+                                ot_match[[i]][x,-(1:3)] == "T",
                             TRUE,
                             FALSE
                         ))
                 }
                 aa_list[[j]] <-
                     lapply(2:(length_template + 1), function(x)
-                        ifelse(ot_match[[j]][1, -(1:3)] == "T" &
-                                   ot_match[[j]][x, -(1:3)] == "A", TRUE, FALSE))
+                        ifelse(ot_match[[j]][1,-(1:3)] == "T" &
+                                   ot_match[[j]][x,-(1:3)] == "A", TRUE, FALSE))
             }
             aa_list[[k]] <-
                 lapply(2:(length_template + 1), function(x)
-                    ifelse(ot_match[[k]][1, -(1:3)] == "A" &
-                               ot_match[[k]][x, -(1:3)] == "T", TRUE, FALSE))
+                    ifelse(ot_match[[k]][1,-(1:3)] == "A" &
+                               ot_match[[k]][x,-(1:3)] == "T", TRUE, FALSE))
             aa_unlist[[i]] <-
                 data.frame(matrix(
                     unlist(aa_list[[i]]),
@@ -651,11 +653,11 @@ server <- function(input, output) {
             aa_unlist[[k]]$aa_term <-
                 as.numeric(aa_unlist[[k]][, ncol(aa_unlist[[k]])] == "TRUE")
             aa_unlist[[i]]$aa_total <-
-                rowSums(aa_unlist[[i]][, -ncol(aa_unlist[[i]])] == "TRUE", na.rm = TRUE)
+                rowSums(aa_unlist[[i]][,-ncol(aa_unlist[[i]])] == "TRUE", na.rm = TRUE)
             aa_unlist[[j]]$aa_total <-
-                rowSums(aa_unlist[[j]][, -ncol(aa_unlist[[j]])] == "TRUE", na.rm = TRUE)
+                rowSums(aa_unlist[[j]][,-ncol(aa_unlist[[j]])] == "TRUE", na.rm = TRUE)
             aa_unlist[[k]]$aa_total <-
-                rowSums(aa_unlist[[k]][, -ncol(aa_unlist[[k]])] == "TRUE", na.rm = TRUE)
+                rowSums(aa_unlist[[k]][,-ncol(aa_unlist[[k]])] == "TRUE", na.rm = TRUE)
             aa_unlist[[i]]$aa_end3p <-
                 rowSums(aa_unlist[[i]][, ((ncol(aa_unlist[[i]]) - 2 - 4):(ncol(aa_unlist[[i]]) -
                                                                               2))] == "TRUE")
@@ -686,9 +688,9 @@ server <- function(input, output) {
                 for (k in (j + 1)) {
                     ag_list[[i]] <- lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[i]][1, -(1:3)] == "A" & ot_match[[i]][x, -(1:3)] == "C" |
-                                ot_match[[i]][1, -(1:3)] == "G" &
-                                ot_match[[i]][x, -(1:3)] == "T",
+                            ot_match[[i]][1,-(1:3)] == "A" & ot_match[[i]][x,-(1:3)] == "C" |
+                                ot_match[[i]][1,-(1:3)] == "G" &
+                                ot_match[[i]][x,-(1:3)] == "T",
                             TRUE,
                             FALSE
                         ))
@@ -696,9 +698,9 @@ server <- function(input, output) {
                 ag_list[[j]] <-
                     lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[j]][1, -(1:3)] == "T" & ot_match[[j]][x, -(1:3)] == "G" |
-                                ot_match[[j]][1, -(1:3)] == "C" &
-                                ot_match[[j]][x, -(1:3)] == "A",
+                            ot_match[[j]][1,-(1:3)] == "T" & ot_match[[j]][x,-(1:3)] == "G" |
+                                ot_match[[j]][1,-(1:3)] == "C" &
+                                ot_match[[j]][x,-(1:3)] == "A",
                             TRUE,
                             FALSE
                         ))
@@ -706,9 +708,9 @@ server <- function(input, output) {
             ag_list[[k]] <-
                 lapply(2:(length_template + 1), function(x)
                     ifelse(
-                        ot_match[[k]][1, -(1:3)] == "A" & ot_match[[k]][x, -(1:3)] == "C" |
-                            ot_match[[k]][1, -(1:3)] == "G" &
-                            ot_match[[k]][x, -(1:3)] == "T",
+                        ot_match[[k]][1,-(1:3)] == "A" & ot_match[[k]][x,-(1:3)] == "C" |
+                            ot_match[[k]][1,-(1:3)] == "G" &
+                            ot_match[[k]][x,-(1:3)] == "T",
                         TRUE,
                         FALSE
                     ))
@@ -739,11 +741,11 @@ server <- function(input, output) {
             ag_unlist[[k]]$ag_term <-
                 as.numeric(ag_unlist[[k]][, ncol(ag_unlist[[k]])] == "TRUE")
             ag_unlist[[i]]$ag_total <-
-                rowSums(ag_unlist[[i]][, -ncol(ag_unlist[[i]])] == "TRUE", na.rm = TRUE)
+                rowSums(ag_unlist[[i]][,-ncol(ag_unlist[[i]])] == "TRUE", na.rm = TRUE)
             ag_unlist[[j]]$ag_total <-
-                rowSums(ag_unlist[[j]][, -ncol(ag_unlist[[j]])] == "TRUE", na.rm = TRUE)
+                rowSums(ag_unlist[[j]][,-ncol(ag_unlist[[j]])] == "TRUE", na.rm = TRUE)
             ag_unlist[[k]]$ag_total <-
-                rowSums(ag_unlist[[k]][, -ncol(ag_unlist[[k]])] == "TRUE", na.rm = TRUE)
+                rowSums(ag_unlist[[k]][,-ncol(ag_unlist[[k]])] == "TRUE", na.rm = TRUE)
             ag_unlist[[i]]$ag_end3p <-
                 rowSums(ag_unlist[[i]][, ((ncol(ag_unlist[[i]]) - 2 - 4):(ncol(ag_unlist[[i]]) -
                                                                               2))] == "TRUE")
@@ -774,9 +776,9 @@ server <- function(input, output) {
                 for (k in (j + 1)) {
                     ac_list[[i]] <- lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[i]][1, -(1:3)] == "A" & ot_match[[i]][x, -(1:3)] == "G" |
-                                ot_match[[i]][1, -(1:3)] == "C" &
-                                ot_match[[i]][x, -(1:3)] == "T",
+                            ot_match[[i]][1,-(1:3)] == "A" & ot_match[[i]][x,-(1:3)] == "G" |
+                                ot_match[[i]][1,-(1:3)] == "C" &
+                                ot_match[[i]][x,-(1:3)] == "T",
                             TRUE,
                             FALSE
                         ))
@@ -784,9 +786,9 @@ server <- function(input, output) {
                 ac_list[[j]] <-
                     lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[j]][1, -(1:3)] == "T" & ot_match[[j]][x, -(1:3)] == "C" |
-                                ot_match[[j]][1, -(1:3)] == "G" &
-                                ot_match[[j]][x, -(1:3)] == "A",
+                            ot_match[[j]][1,-(1:3)] == "T" & ot_match[[j]][x,-(1:3)] == "C" |
+                                ot_match[[j]][1,-(1:3)] == "G" &
+                                ot_match[[j]][x,-(1:3)] == "A",
                             TRUE,
                             FALSE
                         ))
@@ -794,9 +796,9 @@ server <- function(input, output) {
             ac_list[[k]] <-
                 lapply(2:(length_template + 1), function(x)
                     ifelse(
-                        ot_match[[k]][1, -(1:3)] == "A" & ot_match[[k]][x, -(1:3)] == "G" |
-                            ot_match[[k]][1, -(1:3)] == "C" &
-                            ot_match[[k]][x, -(1:3)] == "T",
+                        ot_match[[k]][1,-(1:3)] == "A" & ot_match[[k]][x,-(1:3)] == "G" |
+                            ot_match[[k]][1,-(1:3)] == "C" &
+                            ot_match[[k]][x,-(1:3)] == "T",
                         TRUE,
                         FALSE
                     ))
@@ -827,11 +829,11 @@ server <- function(input, output) {
             ac_unlist[[k]]$ac_term <-
                 as.numeric(ac_unlist[[k]][, ncol(ac_unlist[[k]])] == "TRUE")
             ac_unlist[[i]]$ac_total <-
-                rowSums(ac_unlist[[i]][, -ncol(ac_unlist[[i]])] == "TRUE", na.rm = TRUE)
+                rowSums(ac_unlist[[i]][,-ncol(ac_unlist[[i]])] == "TRUE", na.rm = TRUE)
             ac_unlist[[j]]$ac_total <-
-                rowSums(ac_unlist[[j]][, -ncol(ac_unlist[[j]])] == "TRUE", na.rm = TRUE)
+                rowSums(ac_unlist[[j]][,-ncol(ac_unlist[[j]])] == "TRUE", na.rm = TRUE)
             ac_unlist[[k]]$ac_total <-
-                rowSums(ac_unlist[[k]][, -ncol(ac_unlist[[k]])] == "TRUE", na.rm = TRUE)
+                rowSums(ac_unlist[[k]][,-ncol(ac_unlist[[k]])] == "TRUE", na.rm = TRUE)
             ac_unlist[[i]]$ac_end3p <-
                 rowSums(ac_unlist[[i]][, ((ncol(ac_unlist[[i]]) - 2 - 4):(ncol(ac_unlist[[i]]) -
                                                                               2))] == "TRUE")
@@ -862,21 +864,21 @@ server <- function(input, output) {
                 for (k in (j + 1)) {
                     tt_list[[i]] <- lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[i]][1, -(1:3)] == "T" &
-                                ot_match[[i]][x, -(1:3)] == "A",
+                            ot_match[[i]][1,-(1:3)] == "T" &
+                                ot_match[[i]][x,-(1:3)] == "A",
                             TRUE,
                             FALSE
                         ))
                 }
                 tt_list[[j]] <-
                     lapply(2:(length_template + 1), function(x)
-                        ifelse(ot_match[[j]][1, -(1:3)] == "A" &
-                                   ot_match[[j]][x, -(1:3)] == "T", TRUE, FALSE))
+                        ifelse(ot_match[[j]][1,-(1:3)] == "A" &
+                                   ot_match[[j]][x,-(1:3)] == "T", TRUE, FALSE))
             }
             tt_list[[k]] <-
                 lapply(2:(length_template + 1), function(x)
-                    ifelse(ot_match[[k]][1, -(1:3)] == "T" &
-                               ot_match[[k]][x, -(1:3)] == "A", TRUE, FALSE))
+                    ifelse(ot_match[[k]][1,-(1:3)] == "T" &
+                               ot_match[[k]][x,-(1:3)] == "A", TRUE, FALSE))
             tt_unlist[[i]] <-
                 data.frame(matrix(
                     unlist(tt_list[[i]]),
@@ -904,11 +906,11 @@ server <- function(input, output) {
             tt_unlist[[k]]$tt_term <-
                 as.numeric(tt_unlist[[k]][, ncol(tt_unlist[[k]])] == "TRUE")
             tt_unlist[[i]]$tt_total <-
-                rowSums(tt_unlist[[i]][, -ncol(tt_unlist[[i]])] == "TRUE", na.rm = TRUE)
+                rowSums(tt_unlist[[i]][,-ncol(tt_unlist[[i]])] == "TRUE", na.rm = TRUE)
             tt_unlist[[j]]$tt_total <-
-                rowSums(tt_unlist[[j]][, -ncol(tt_unlist[[j]])] == "TRUE", na.rm = TRUE)
+                rowSums(tt_unlist[[j]][,-ncol(tt_unlist[[j]])] == "TRUE", na.rm = TRUE)
             tt_unlist[[k]]$tt_total <-
-                rowSums(tt_unlist[[k]][, -ncol(tt_unlist[[k]])] == "TRUE", na.rm = TRUE)
+                rowSums(tt_unlist[[k]][,-ncol(tt_unlist[[k]])] == "TRUE", na.rm = TRUE)
             tt_unlist[[i]]$tt_end3p <-
                 rowSums(tt_unlist[[i]][, ((ncol(tt_unlist[[i]]) - 2 - 4):(ncol(tt_unlist[[i]]) -
                                                                               2))] == "TRUE")
@@ -939,9 +941,9 @@ server <- function(input, output) {
                 for (k in (j + 1)) {
                     tg_list[[i]] <- lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[i]][1, -(1:3)] == "T" & ot_match[[i]][x, -(1:3)] == "C" |
-                                ot_match[[i]][1, -(1:3)] == "G" &
-                                ot_match[[i]][x, -(1:3)] == "A",
+                            ot_match[[i]][1,-(1:3)] == "T" & ot_match[[i]][x,-(1:3)] == "C" |
+                                ot_match[[i]][1,-(1:3)] == "G" &
+                                ot_match[[i]][x,-(1:3)] == "A",
                             TRUE,
                             FALSE
                         ))
@@ -949,9 +951,9 @@ server <- function(input, output) {
                 tg_list[[j]] <-
                     lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[j]][1, -(1:3)] == "A" & ot_match[[j]][x, -(1:3)] == "G" |
-                                ot_match[[j]][1, -(1:3)] == "C" &
-                                ot_match[[j]][x, -(1:3)] == "T",
+                            ot_match[[j]][1,-(1:3)] == "A" & ot_match[[j]][x,-(1:3)] == "G" |
+                                ot_match[[j]][1,-(1:3)] == "C" &
+                                ot_match[[j]][x,-(1:3)] == "T",
                             TRUE,
                             FALSE
                         ))
@@ -959,9 +961,9 @@ server <- function(input, output) {
             tg_list[[k]] <-
                 lapply(2:(length_template + 1), function(x)
                     ifelse(
-                        ot_match[[k]][1, -(1:3)] == "T" & ot_match[[k]][x, -(1:3)] == "C" |
-                            ot_match[[k]][1, -(1:3)] == "G" &
-                            ot_match[[k]][x, -(1:3)] == "A",
+                        ot_match[[k]][1,-(1:3)] == "T" & ot_match[[k]][x,-(1:3)] == "C" |
+                            ot_match[[k]][1,-(1:3)] == "G" &
+                            ot_match[[k]][x,-(1:3)] == "A",
                         TRUE,
                         FALSE
                     ))
@@ -992,11 +994,11 @@ server <- function(input, output) {
             tg_unlist[[k]]$tg_term <-
                 as.numeric(tg_unlist[[k]][, ncol(tg_unlist[[k]])] == "TRUE")
             tg_unlist[[i]]$tg_total <-
-                rowSums(tg_unlist[[i]][, -ncol(tg_unlist[[i]])] == "TRUE", na.rm = TRUE)
+                rowSums(tg_unlist[[i]][,-ncol(tg_unlist[[i]])] == "TRUE", na.rm = TRUE)
             tg_unlist[[j]]$tg_total <-
-                rowSums(tg_unlist[[j]][, -ncol(tg_unlist[[j]])] == "TRUE", na.rm = TRUE)
+                rowSums(tg_unlist[[j]][,-ncol(tg_unlist[[j]])] == "TRUE", na.rm = TRUE)
             tg_unlist[[k]]$tg_total <-
-                rowSums(tg_unlist[[k]][, -ncol(tg_unlist[[k]])] == "TRUE", na.rm = TRUE)
+                rowSums(tg_unlist[[k]][,-ncol(tg_unlist[[k]])] == "TRUE", na.rm = TRUE)
             tg_unlist[[i]]$tg_end3p <-
                 rowSums(tg_unlist[[i]][, ((ncol(tg_unlist[[i]]) - 2 - 4):(ncol(tg_unlist[[i]]) -
                                                                               2))] == "TRUE")
@@ -1027,9 +1029,9 @@ server <- function(input, output) {
                 for (k in (j + 1)) {
                     tc_list[[i]] <- lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[i]][1, -(1:3)] == "T" & ot_match[[i]][x, -(1:3)] == "G" |
-                                ot_match[[i]][1, -(1:3)] == "C" &
-                                ot_match[[i]][x, -(1:3)] == "A",
+                            ot_match[[i]][1,-(1:3)] == "T" & ot_match[[i]][x,-(1:3)] == "G" |
+                                ot_match[[i]][1,-(1:3)] == "C" &
+                                ot_match[[i]][x,-(1:3)] == "A",
                             TRUE,
                             FALSE
                         ))
@@ -1037,9 +1039,9 @@ server <- function(input, output) {
                 tc_list[[j]] <-
                     lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[j]][1, -(1:3)] == "A" & ot_match[[j]][x, -(1:3)] == "C" |
-                                ot_match[[j]][1, -(1:3)] == "G" &
-                                ot_match[[j]][x, -(1:3)] == "T",
+                            ot_match[[j]][1,-(1:3)] == "A" & ot_match[[j]][x,-(1:3)] == "C" |
+                                ot_match[[j]][1,-(1:3)] == "G" &
+                                ot_match[[j]][x,-(1:3)] == "T",
                             TRUE,
                             FALSE
                         ))
@@ -1047,9 +1049,9 @@ server <- function(input, output) {
             tc_list[[k]] <-
                 lapply(2:(length_template + 1), function(x)
                     ifelse(
-                        ot_match[[k]][1, -(1:3)] == "T" & ot_match[[k]][x, -(1:3)] == "G" |
-                            ot_match[[k]][1, -(1:3)] == "C" &
-                            ot_match[[k]][x, -(1:3)] == "A",
+                        ot_match[[k]][1,-(1:3)] == "T" & ot_match[[k]][x,-(1:3)] == "G" |
+                            ot_match[[k]][1,-(1:3)] == "C" &
+                            ot_match[[k]][x,-(1:3)] == "A",
                         TRUE,
                         FALSE
                     ))
@@ -1080,11 +1082,11 @@ server <- function(input, output) {
             tc_unlist[[k]]$tc_term <-
                 as.numeric(tc_unlist[[k]][, ncol(tc_unlist[[k]])] == "TRUE")
             tc_unlist[[i]]$tc_total <-
-                rowSums(tc_unlist[[i]][, -ncol(tc_unlist[[i]])] == "TRUE", na.rm = TRUE)
+                rowSums(tc_unlist[[i]][,-ncol(tc_unlist[[i]])] == "TRUE", na.rm = TRUE)
             tc_unlist[[j]]$tc_total <-
-                rowSums(tc_unlist[[j]][, -ncol(tc_unlist[[j]])] == "TRUE", na.rm = TRUE)
+                rowSums(tc_unlist[[j]][,-ncol(tc_unlist[[j]])] == "TRUE", na.rm = TRUE)
             tc_unlist[[k]]$tc_total <-
-                rowSums(tc_unlist[[k]][, -ncol(tc_unlist[[k]])] == "TRUE", na.rm = TRUE)
+                rowSums(tc_unlist[[k]][,-ncol(tc_unlist[[k]])] == "TRUE", na.rm = TRUE)
             tc_unlist[[i]]$tc_end3p <-
                 rowSums(tc_unlist[[i]][, ((ncol(tc_unlist[[i]]) - 2 - 4):(ncol(tc_unlist[[i]]) -
                                                                               2))] == "TRUE")
@@ -1115,21 +1117,21 @@ server <- function(input, output) {
                 for (k in (j + 1)) {
                     gg_list[[i]] <- lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[i]][1, -(1:3)] == "G" &
-                                ot_match[[i]][x, -(1:3)] == "C",
+                            ot_match[[i]][1,-(1:3)] == "G" &
+                                ot_match[[i]][x,-(1:3)] == "C",
                             TRUE,
                             FALSE
                         ))
                 }
                 gg_list[[j]] <-
                     lapply(2:(length_template + 1), function(x)
-                        ifelse(ot_match[[j]][1, -(1:3)] == "C" &
-                                   ot_match[[j]][x, -(1:3)] == "G", TRUE, FALSE))
+                        ifelse(ot_match[[j]][1,-(1:3)] == "C" &
+                                   ot_match[[j]][x,-(1:3)] == "G", TRUE, FALSE))
             }
             gg_list[[k]] <-
                 lapply(2:(length_template + 1), function(x)
-                    ifelse(ot_match[[k]][1, -(1:3)] == "G" &
-                               ot_match[[k]][x, -(1:3)] == "C", TRUE, FALSE))
+                    ifelse(ot_match[[k]][1,-(1:3)] == "G" &
+                               ot_match[[k]][x,-(1:3)] == "C", TRUE, FALSE))
             gg_unlist[[i]] <-
                 data.frame(matrix(
                     unlist(gg_list[[i]]),
@@ -1157,11 +1159,11 @@ server <- function(input, output) {
             gg_unlist[[k]]$gg_term <-
                 as.numeric(gg_unlist[[k]][, ncol(gg_unlist[[k]])] == "TRUE")
             gg_unlist[[i]]$gg_total <-
-                rowSums(gg_unlist[[i]][, -ncol(gg_unlist[[i]])] == "TRUE", na.rm = TRUE)
+                rowSums(gg_unlist[[i]][,-ncol(gg_unlist[[i]])] == "TRUE", na.rm = TRUE)
             gg_unlist[[j]]$gg_total <-
-                rowSums(gg_unlist[[j]][, -ncol(gg_unlist[[j]])] == "TRUE", na.rm = TRUE)
+                rowSums(gg_unlist[[j]][,-ncol(gg_unlist[[j]])] == "TRUE", na.rm = TRUE)
             gg_unlist[[k]]$gg_total <-
-                rowSums(gg_unlist[[k]][, -ncol(gg_unlist[[k]])] == "TRUE", na.rm = TRUE)
+                rowSums(gg_unlist[[k]][,-ncol(gg_unlist[[k]])] == "TRUE", na.rm = TRUE)
             gg_unlist[[i]]$gg_end3p <-
                 rowSums(gg_unlist[[i]][, ((ncol(gg_unlist[[i]]) - 2 - 4):(ncol(gg_unlist[[i]]) -
                                                                               2))] == "TRUE")
@@ -1192,21 +1194,21 @@ server <- function(input, output) {
                 for (k in (j + 1)) {
                     cc_list[[i]] <- lapply(2:(length_template + 1), function(x)
                         ifelse(
-                            ot_match[[i]][1, -(1:3)] == "C" &
-                                ot_match[[i]][x, -(1:3)] == "G",
+                            ot_match[[i]][1,-(1:3)] == "C" &
+                                ot_match[[i]][x,-(1:3)] == "G",
                             TRUE,
                             FALSE
                         ))
                 }
                 cc_list[[j]] <-
                     lapply(2:(length_template + 1), function(x)
-                        ifelse(ot_match[[j]][1, -(1:3)] == "G" &
-                                   ot_match[[j]][x, -(1:3)] == "C", TRUE, FALSE))
+                        ifelse(ot_match[[j]][1,-(1:3)] == "G" &
+                                   ot_match[[j]][x,-(1:3)] == "C", TRUE, FALSE))
             }
             cc_list[[k]] <-
                 lapply(2:(length_template + 1), function(x)
-                    ifelse(ot_match[[k]][1, -(1:3)] == "C" &
-                               ot_match[[k]][x, -(1:3)] == "G", TRUE, FALSE))
+                    ifelse(ot_match[[k]][1,-(1:3)] == "C" &
+                               ot_match[[k]][x,-(1:3)] == "G", TRUE, FALSE))
             cc_unlist[[i]] <-
                 data.frame(matrix(
                     unlist(cc_list[[i]]),
@@ -1234,11 +1236,11 @@ server <- function(input, output) {
             cc_unlist[[k]]$cc_term <-
                 as.numeric(cc_unlist[[k]][, ncol(cc_unlist[[k]])] == "TRUE")
             cc_unlist[[i]]$cc_total <-
-                rowSums(cc_unlist[[i]][, -ncol(cc_unlist[[i]])] == "TRUE", na.rm = TRUE)
+                rowSums(cc_unlist[[i]][,-ncol(cc_unlist[[i]])] == "TRUE", na.rm = TRUE)
             cc_unlist[[j]]$cc_total <-
-                rowSums(cc_unlist[[j]][, -ncol(cc_unlist[[j]])] == "TRUE", na.rm = TRUE)
+                rowSums(cc_unlist[[j]][,-ncol(cc_unlist[[j]])] == "TRUE", na.rm = TRUE)
             cc_unlist[[k]]$cc_total <-
-                rowSums(cc_unlist[[k]][, -ncol(cc_unlist[[k]])] == "TRUE", na.rm = TRUE)
+                rowSums(cc_unlist[[k]][,-ncol(cc_unlist[[k]])] == "TRUE", na.rm = TRUE)
             cc_unlist[[i]]$cc_end3p <-
                 rowSums(cc_unlist[[i]][, ((ncol(cc_unlist[[i]]) - 2 - 4):(ncol(cc_unlist[[i]]) -
                                                                               2))] == "TRUE")
@@ -1323,7 +1325,7 @@ server <- function(input, output) {
                 testdata$Total_mm - testdata$End5p_mm - testdata$End3p_mm
             ))
         
-        testdata <- testdata[,-c(7, 10:14)]
+        testdata <- testdata[, -c(7, 10:14)]
         
         ### Reshape dataframe to wide format
         testdata <- reshape(
@@ -1405,11 +1407,11 @@ server <- function(input, output) {
             as.numeric(paste(testdata$CC.P / testdata$Pmm_total)) # Proportion
         
         testdata$F_length <-
-            length(input_matrix[1, 4:ncol(input_matrix)]) - sum(is.na(input_matrix[1, ]))
+            length(input_matrix[1, 4:ncol(input_matrix)]) - sum(is.na(input_matrix[1,]))
         testdata$R_length <-
-            length(input_matrix[2, 4:ncol(input_matrix)]) - sum(is.na(input_matrix[2, ]))
+            length(input_matrix[2, 4:ncol(input_matrix)]) - sum(is.na(input_matrix[2,]))
         testdata$P_length <-
-            length(input_matrix[3, 4:ncol(input_matrix)]) - sum(is.na(input_matrix[3, ]))
+            length(input_matrix[3, 4:ncol(input_matrix)]) - sum(is.na(input_matrix[3,]))
         testdata$FR_length <-
             as.numeric(paste((
                 testdata$F_length + testdata$R_length
@@ -1455,7 +1457,7 @@ server <- function(input, output) {
         )
         
         testdata <-
-            testdata[order(testdata$Assay, testdata$Taxon), ]
+            testdata[order(testdata$Assay, testdata$Taxon),]
         
         is.nan.data.frame <- function(x)
             do.call(cbind, lapply(x, is.nan))
@@ -1468,7 +1470,7 @@ server <- function(input, output) {
                     type = "prob") # Predict results of test data
         prediction <- cbind(testdata[, 1:3], prediction[, 1])
         names(prediction)[4] <- "Amp"
-        prediction <- prediction[order(-prediction$Amp), ]
+        prediction <- prediction[order(-prediction$Amp),]
         
         return(list(data = testdata, pred = prediction))
         
