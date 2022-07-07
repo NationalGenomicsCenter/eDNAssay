@@ -27,8 +27,8 @@ R_Tm <- 60
 P_Tm <- 70
 
 ### Specify output CSV file
-output_mismatches <- "Assay_mismatches.csv"
-output_probabilities <- "Assay_specificity.csv"
+output_mismatches <- "Assay_mismatches_ND1.csv"
+output_probabilities <- "Assay_specificity_ND1.csv"
 
 ##################################################################################################
 ### Combine matrices and save as a dataframe
@@ -981,7 +981,7 @@ is.nan.data.frame <- function(x)
   do.call(cbind, lapply(x, is.nan))
 testdata[is.nan(testdata)] <- 0
 
-# write.csv(testdata, output_mismatches, row.names = FALSE)
+write.csv(testdata, output_mismatches, row.names = FALSE)
 
 ##################################################################################################
 ### Load training model and predict amplification
