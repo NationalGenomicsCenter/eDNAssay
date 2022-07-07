@@ -27,8 +27,8 @@ R_Tm <- 60
 P_Tm <- 70
 
 ### Specify output CSV file
-output_mismatches <- "Assay_mismatches_ND1.csv"
-output_probabilities <- "Assay_specificity_ND1.csv"
+output_mismatches <- "Assay_mismatches.csv"
+output_probabilities <- "Assay_specificity.csv"
 
 ##################################################################################################
 ### Combine matrices and save as a dataframe
