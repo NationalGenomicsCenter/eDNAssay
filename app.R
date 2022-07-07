@@ -12,7 +12,7 @@ library(DT)
 library(shinycssloaders)
 
 ### Load trained model
-load("TaqMan_trained_model.RData")
+load("eDNAssay_trained_model.RData")
 
 ### Used below to format slider
 sliderInput2 <-
@@ -39,9 +39,9 @@ ui <- tagList(
         HTML(
             "body {padding-top: 70px; padding-bottom: 20px; padding-left: 20px; padding-right: 20px;}",
             "#big-heading {display: flex; flex-direction: row; justify-content: start; align: left; align-items: center; padding-left: 15px;
-        padding-right: 15px; padding-top: 0px; padding-bottom: 0px; color: #024f94; font-size: 34pt; font-weight: bold; width: 100%;}",
-            "h1 {font-size: 20pt; font-weight: bold;}",
-            "h2 {font-size: 20pt; font-weight: bold; margin-top: 10px; margin-bottom: 0px;}",
+            padding-right: 15px; padding-top: 0px; padding-bottom: 0px; color: #024f94; font-size: 34pt; font-weight: bold; width: 100%;}",
+            "h1 {font-size: 18pt; font-weight: bold;}",
+            "h2 {font-size: 22pt; font-weight: bold; margin-top: 10px; margin-bottom: 0px;}",
             "p {font-size: 11.5pt;}",
             "a {font-size: 11.5pt;}",
             "code {color: black; background-color: #F5F5F5;}",
@@ -69,14 +69,6 @@ ui <- tagList(
         ### Predict amplification page
         tabPanel(
             "Predict Amplification",
-            # tags$head(         # Code works locally, but favicons not supported by shinyapps.io server
-            #     tags$link(
-            #         rel = "icon",
-            #         type = "image/x-icon",
-            #         sizes = "32x32",
-            #         href = "/favicon.ico"
-            #     )
-            # ),
             hr(),
             p(
                 paste(
@@ -90,6 +82,12 @@ ui <- tagList(
                 a(href = "https://github.com/NationalGenomicsCenter/eDNAssay", "GitHub repository", target = "_blank"),
                 "for more information."
             ),
+            p(
+                "For optimal performance: 1) the reaction conditions from Kronenberger et al. (2022) should be used or the model
+            re-trained using the conditions of choice, 2) the melting temperatures should be ~58-60 C
+            for primers and ~68-70 C for probes, and 3) the forward primer and probe should anneal to the antisense strand
+              and the reverse primer to the sense strand. Accuracy has not been tested outside these parameters."
+            ),
             br(),
             
             ### Sidebar for inputting and outputting data
@@ -102,10 +100,9 @@ ui <- tagList(
                         (
                             'Input a FASTA file containing aligned sequences. Primer and probe sequences must appear first,
                         ordered as forward primer, reverse primer, then probe; name using four-letter codes followed by
-                        a space then a single-digit oligonucleotide signifier ("XXXX F", "XXXX R", and "XXXX P").
-                        Only IUPAC-approved characters are allowed (A, C, G, T, M, R, W, S, Y, K, V, H, D, B, N, -, +, and .).
-                        Dashes (from indels or sequences not fully overlapping with the assay) are treated as Ns (any base)
-                        for a conservative estimate of assay specificity. See this'
+                        a space and a single-digit oligonucleotide signifier ("XXXX F", "XXXX R", and "XXXX P").
+                        Only IUPAC-approved characters are allowed. Dashes are treated as Ns (any base) for a conservative
+                        estimate of assay specificity. See this'
                         ),
                         a(
                             href = "FVIR_alignment.fas",
@@ -283,18 +280,17 @@ ui <- tagList(
             ),
             p(
                 paste(
-                    "eDNAssay was trained on results from TaqMan-based qPCR with minor groove binding probe moiety and 45-cycle reactions.
-                It may be less accurate under different reaction conditions. For optimal performance, we recommend users either 1)
-                develop assays under the reaction conditions used to train the model or 2) test model accuracy under other reaction
-                conditions before relying on them to declare specificity."
+                    "eDNAssay was trained on qPCR results as produced by the National Genomics Center for Wildlife and
+                    Fish Conservation. Using this tool to predict the specificity of assays under different reaction
+                    conditions will likely result in less accurate results."
                 ),
                 hr(),
                 
                 h1("How to cite this tool"),
                 p(
                     paste(
-                        "Kronenberger JA, Wilcox TM, Mason DH, Franklin TW, McKelvey KS, Young MK, and Schwartz MK (2022).
-                  eDNAssay: a machine learning tool that accurately predicts qPCR cross-amplification. Submitted to "
+                        "Kronenberger JA, Wilcox TM, Mason DH, Franklin TW, McKelvey KS, Young MK, and Schwartz MK (in press).
+                  eDNAssay: a machine learning tool that accurately predicts qPCR cross-amplification."
                     ),
                     em("Molecular Ecology Resources.")
                 ),
@@ -340,16 +336,16 @@ ui <- tagList(
                     "with any feedback."
                 ),
                 p(
-                    "eDNAssay was created by Taylor Wilcox at ",
-                    a(href = "taylor.wilcox@usda.gov",
-                      "taylor.wilcox@usda.gov",
-                      target = "_blank"),
-                    "and John Kronenberger at ",
+                    "eDNAssay was created by John Kronenberger at ",
                     a(
                         href = "john.kronenberger@usda.gov",
                         "john.kronenberger@usda.gov",
                         target = "_blank"
                     ),
+                    "and Taylor Wilcox at ",
+                    a(href = "taylor.wilcox@usda.gov",
+                      "taylor.wilcox@usda.gov",
+                      target = "_blank"),
                     br()
                 )
             )
@@ -1360,9 +1356,9 @@ server <- function(input, output) {
         testdata$FRmm_total <-
             as.integer(paste(testdata$Total_mm.F + testdata$Total_mm.R))
         testdata$FRmm_diff <-
-            as.numeric(paste(abs(
-                testdata$Total_mm.F - testdata$Total_mm.R
-            )/(testdata$Total_mm.F + testdata$Total_mm.R)))
+            as.numeric(paste(
+                abs(testdata$Total_mm.F - testdata$Total_mm.R) / (testdata$Total_mm.F + testdata$Total_mm.R)
+            ))
         testdata$FRmm_3p <-
             as.numeric(paste((testdata$End3p_mm.F + testdata$End3p_mm.R) / (testdata$Total_mm.F + testdata$Total_mm.R)
             )) # Proportion
@@ -1511,7 +1507,7 @@ server <- function(input, output) {
     )
     
     ### Used below
-    load("TaqMan_optimal_thresholds.RData")
+    load("eDNAssay_optimal_thresholds.RData")
     
     ### Optimal threshold plot
     output$opt <- renderPlot({
