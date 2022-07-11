@@ -10,18 +10,18 @@ library(stringr)
 library(dplyr)
 
 ### Input a FASTA file containing aligned sequences. Primer and probe sequences must appear first,
-### ordered as forward primer, reverse primer, then probe; name oligonucleotides using four-letter
-### codes followed by a space then a single-digit oligonucleotide signifier ("XXXX F", "XXXX R", and
-### "XXXX P"); dashes (from indels or sequences not fully overlapping with the assay) are treated
+### ordered as forward primer, reverse primer, then probe; name oligonucleotides using identical 
+### four-letter codes followed by a space then a single-digit oligonucleotide signifier ("XXXX F", "XXXX R", 
+### and "XXXX P"); dashes (from indels or sequences not fully overlapping with the assay) are treated
 ### as Ns (any base) for a conservative estimate of assay specificity
 input_seqs <- readDNAStringSet(file.choose()) # Use "readDNAStringSet" to allow only IUPAC-approved characters
 
 ### No metadata file required, but sequence names must be formatted as in GenBank
 
 ### Specify melting temperatures most closely matching your reaction conditions
-F_Tm <- 57.8
-R_Tm <- 58.9
-P_Tm <- 66
+F_Tm <- 60
+R_Tm <- 60
+P_Tm <- 70
 
 ### Specify output CSV file
 output_mismatches <- "Assay_mismatches.csv"
