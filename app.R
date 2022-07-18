@@ -6,6 +6,7 @@ library(shiny)
 options(repos = BiocManager::repositories())
 library(Biostrings)
 library(dplyr)
+library(stringr)
 library(caret)
 library(randomForest)
 library(DT)
@@ -73,20 +74,11 @@ ui <- tagList(
             p(
                 paste(
                     'Welcome to eDNAssay! This tool uses supervised machine learning to predict qPCR assay specificity, particularly
-        as applied to environmental samples. Simply input aligned sequences and brief metadata. For each template, a
-        binary classification model \U2012 trained on TaqMan qPCR results \U2012 outputs the probability of being assigned
-        to the "amplify" class. In addition, the Optimize Threshold page can be used to lower the assignment probability
-        threshold from the default of 0.5 to better hedge against false negative errors. See the Learn More page, Kronenberger
-        et al. (2022), and our'
-                ),
-                a(href = "https://github.com/NationalGenomicsCenter/eDNAssay", "GitHub repository", target = "_blank"),
-                "for more information."
-            ),
-            p(
-                "For optimal performance: 1) reaction conditions from Kronenberger et al. (2022) should be used or the model
-            retrained using the conditions of choice, 2) melting temperatures should be ~58-60 C
-            for primers and ~68-70 C for probes, and 3) forward primers and probes should anneal to the antisense strand
-              and reverse primers to the sense strand. Accuracy has not been tested outside these parameters."
+        as applied to environmental samples. Simply input aligned sequences and brief metadata. For each sequence, a random forest
+        classifier \U2012 trained on TaqMan probe-based qPCR results \U2012 outputs the probability of being assigned to the "amplify"
+        class. The Optimize Threshold page can help determine in vitro testing requirements. See the Learn More page and Kronenberger et al.
+        (2022) for more information.'
+                )
             ),
             br(),
             
@@ -97,19 +89,15 @@ ui <- tagList(
                     p(
                         ("\U2022 Input a FASTA file containing aligned sequences."),
                         p(
-                            "\U2022 Primer and probe sequences must appear first,
+                            "\U2022 Oligonucleotide sequences must appear first,
                         ordered as forward primer, reverse primer, then probe."
-                        ),
-                        p(
-                            '\U2022 Name using identical four-letter codes followed
-                        by a space and a single-digit oligonucleotide signifier ("XXXX F", "XXXX R", and "XXXX P").'
                         ),
                         p(
                             "\U2022 Only IUPAC-approved characters are allowed. Dashes are treated as Ns (any base) for a
                           conservative estimate of assay specificity."
                         ),
                         p(
-                            "\U2022 See"
+                            "\U2022 See this"
                             ,
                             a(
                                 href = "FVIR_alignment.fas",
@@ -120,31 +108,12 @@ ui <- tagList(
                         )
                     ),
                     
-                    fileInput("alignment", "Aligned sequence file (.fas)"),
+                    fileInput("alignment", "Aligned sequence file"),
                     hr(style = "border-top: 1px solid #A9A9A9;"),
+                    
                     h1("Input metadata"),
-                    p(
-                        (
-                            "\U2022 Input a CSV file containing metadata, with rows ordered as in the FASTA file."
-                        ),
-                        p(
-                            '\U2022 There must be three columns: Taxon = taxon name, Name = sequence name (for oligos, name
-                            as in the FASTA file) and Type = sequence type ("Oligo" or "Template").'
-                        ),
-                        p(
-                            "\U2022 See "
-                            ,
-                            a(
-                                href = "FVIR_metadata.csv",
-                                "example CSV",
-                                download = NA,
-                                target = "_blank"
-                            )
-                        )
-                    ),
-                    fileInput("metadata", "Metadata file (.csv)"),
-                    hr(style = "border-top: 1px solid #A9A9A9;"),
-                    h1("Input melting temperatures"),
+                    textInput("Assay", "Assay name"),
+                    br(),
                     numericInput(
                         "F_Tm",
                         HTML(paste0("Forward primer T", tags$sub("m"))),
@@ -182,12 +151,16 @@ ui <- tagList(
                     hr(style = "border-top: 1px solid #A9A9A9;"),
                     
                     h1("Download results"),
-                    p(strong("Prediction file (.csv)")),
+                    p(strong("Amplification predictions")),
                     downloadButton("downloadData", "Download"),
                     br(),
                     br(),
-                    p(strong("Formatted input file (.csv)")),
-                    p(em("For mismatch information, if of interest.")),
+                    p(strong("Base-pair mismatches")),
+                    p(
+                        em(
+                            "If of interest; see Kronenberger et al. (2022) for parameter definitions."
+                        )
+                    ),
                     downloadButton("downloadData2", "Download"),
                     br(),
                 ),
@@ -362,9 +335,8 @@ ui <- tagList(
                     "Additional tests of model accuracy have been generated since the publication of Kronenberger et al. (2022) during
               routine specificity testing. These include 171 specificity tests, produced by pairing seven assays with 74 synthetic
               gene fragments. We are only including templates with known sequences as they will be incorporated into the larger
-              training dataset for subsequent versions of eDNAssay. Some of these assay oligonucleotides include a degenerate base
-              and/or have melting temperatures outside the range of the current training data, indicating that the model may be
-              robust to novel assay parameters."
+              training dataset for subsequent versions of eDNAssay. Some of these assays have a degenerate base and/or melting
+              temperatures outside the range of the current training data, indicating the model may be robust to novel assay parameters."
                 ),
                 br(),
                 img(
@@ -407,6 +379,9 @@ ui <- tagList(
 ### Define server logic
 server <- function(input, output) {
     ### Reactive inputs
+    Assay <- eventReactive(input$goButton, {
+        input$Assay
+    })
     F_Tm <- eventReactive(input$goButton, {
         input$F_Tm
     })
@@ -419,26 +394,61 @@ server <- function(input, output) {
     
     threshold <- reactive(input$threshold)
     
-    ### Combine matrices and save as a dataframe
-    input_metadata <-
-        eventReactive(input$goButton, {
-            as.matrix(read.csv(input$metadata$datapath))
-        })
+    ### Save matrix as a dataframe
     input_seqs <-
         eventReactive(input$goButton, {
             as.matrix(readDNAStringSet(input$alignment$datapath))
         })
     
     out_matrix <- eventReactive(input$goButton, {
-        req(input$metadata)
         req(input$alignment)
         
-        input_matrix <- cbind(input_metadata(), input_seqs())
+        input_matrix <- input_seqs()
         input_matrix <-
             as.data.frame(input_matrix, stringsAsFactors = FALSE)
-        input_matrix <- na_if(input_matrix, "-")
+        
+        ### Create metadata columns
+        input_matrix2 <- input_matrix
+        input_matrix2$Name <- row.names(input_matrix)
+        
+        input_matrix2$Taxon <- input_matrix2$Name
+        input_matrix2$Taxon <- gsub("\\.", "", input_matrix2$Taxon)
+        input_matrix2$Taxon <- gsub("\\+", " ", input_matrix2$Taxon)
+        input_matrix2$Taxon <-
+            gsub("NC ", "NC", input_matrix2$Taxon)
+        input_matrix2$Taxon <-
+            gsub("UNVERIFIED: ", "", input_matrix2$Taxon)
+        input_matrix2$Taxon <-
+            trimws(gsub("\\w*[0-9]+\\w*\\s*", "", input_matrix2$Taxon))
+        input_matrix2$Taxon <-
+            word(
+                input_matrix2$Taxon,
+                start = 1,
+                end = 2,
+                sep = fixed(" ")
+            )
+        input_matrix2$Taxon[1:3] <- rep("Target", 3)
+        
+        input_matrix2$Type <- "Template"
+        input_matrix2$Type[1:3] <- "Oligo"
+        
+        input_matrix <-
+            select(input_matrix2, Taxon, Name, Type, everything())
+        
+        ### Update oligo names
+        input_matrix[1, 2] = "F"
+        input_matrix[2, 2] = "R"
+        input_matrix[3, 2] = "P"
+        
+        ### Label sequence names that could not be formatted as "unspecified"
+        input_matrix_names <- input_matrix[, 1:3]
+        input_matrix_names[is.na(input_matrix_names)] <-
+            "Unspecified"
+        input_matrix_seqs <- input_matrix[, 4:ncol(input_matrix)]
+        input_matrix <- cbind(input_matrix_names, input_matrix_seqs)
         
         ### Convert "NA" in template sequences to "N" to accommodate indels
+        input_matrix <- na_if(input_matrix, "-")
         input_matrix_oligos <- input_matrix[1:3,]
         input_matrix_templates <-
             input_matrix[4:nrow(input_matrix),]
@@ -1373,18 +1383,23 @@ server <- function(input, output) {
         
         ### Combine dataframes, append new variables, and reshape
         testdata <- cbind(mm_final, mm_type_final)
-        testdata$Oligo <- as.character(substring(testdata$Oligo, 6))
+        
+        testdata_names <- testdata[, 1:5]
+        testdata_counts <- testdata[, c(6:9, 15:22)]
+        testdata_counts[is.na(testdata_counts)] <- 0
+        testdata <- cbind(testdata_names, testdata_counts)
+        
         testdata$Center_mm <-
             as.integer(paste(
                 testdata$Total_mm - testdata$End5p_mm - testdata$End3p_mm
             ))
         
-        testdata <- testdata[,-c(7, 10:14)]
+        testdata <- testdata[, -c(1, 7)]
         
         ### Reshape dataframe to wide format
         testdata <- reshape(
             data = testdata,
-            idvar = c("Assay", "Name"),
+            idvar = c("Name"),
             timevar = "Oligo",
             v.names = c(
                 "Total_mm",
@@ -1403,6 +1418,7 @@ server <- function(input, output) {
             direction = "wide"
         )
         
+        testdata$Assay <- input$Assay
         testdata$FRmm_total <-
             as.integer(paste(testdata$Total_mm.F + testdata$Total_mm.R))
         testdata$FRmm_diff <-
@@ -1532,7 +1548,6 @@ server <- function(input, output) {
     
     ### Table of amplification predictions
     output$table <- renderTable({
-        req(input$metadata)
         req(input$alignment)
         out <- out_matrix()
         df <- out$pred
@@ -1540,7 +1555,7 @@ server <- function(input, output) {
     
     ### Table of amplification predictions for download
     output$downloadData <- downloadHandler(
-        filename = "eDNAssay_output.csv",
+        filename = "eDNAssay_specificity.csv",
         content = function(file) {
             out <- out_matrix()
             write.csv(out$pred, file, row.names = FALSE)
@@ -1549,7 +1564,7 @@ server <- function(input, output) {
     
     ### Table of model input data for download
     output$downloadData2 <- downloadHandler(
-        filename = "eDNAssay_input.csv",
+        filename = "eDNAssay_mismatches.csv",
         content = function(file) {
             out <- out_matrix()
             write.csv(out$data, file, row.names = FALSE)
@@ -1588,7 +1603,6 @@ server <- function(input, output) {
     
     ### In vitro testing histogram
     output$hist <- renderPlot({
-        req(input$metadata)
         req(input$alignment)
         
         out <- out_matrix()
