@@ -27,14 +27,10 @@ probabilities of belonging to the "amplify" class via the learned primer-only mo
 - **TaqMan_optimal_thresholds.R** - Script used to calculate optimal class assignment probability thresholds for the full-assay model (TaqMan probe-based results) and a range of false negative (FN) to false positive (FP) cost ratios. For a given FN:FP cost ratio, the threshold that results in the lowest total error cost is optimal.
 - **eDNAssay_offline_version.R** - Script used to calculate base-pair mismatches between assay oligonucleotides and templates, and then assign templates
 probabilities of belonging to the "amplify" class via the learned full-assay model (TaqMan probe-based results). This may be used as an alternative to the eDNAssay Shiny app.
-- **eDNAssay_offline_version_no_metadata.R** - Script used to calculate base-pair mismatches between assay oligonucleotides and templates, and then assign templates
-probabilities of belonging to the "amplify" class via the learned full-assay model (TaqMan probe-based results). This may be used as an alternative to the eDNAssay Shiny app. No metadata file is required, although sequences must be named as in GenBank.
 - **app.R** - Script behind the eDNAssay Shiny app.
 - **eDNAssay_alignment_example.fas** - An example sequence alignment file for use with eDNAssay.
-- **eDNAssay_metadata_example.csv** - An example metadata file for use with eDNAssay.
-- **eDNAssay_metadata_parse.R** - Script used to parse a FASTA file into a CSV file formatted for eDNAssay. Sequences must be named as in GenBank.
-- **eDNAssay_assignment_probability_stats.R** - Script used to calculate summary statistics (minimum, maximum, mean, and standard deviation of the mean) 
-of assignment probailties when multiple sequences are included per taxon.
+- **eDNAssay_AP_stats.R** - Script used to calculate summary statistics (minimum, maximum, mean, and standard deviation of the mean) 
+of assignment probabilties when multiple sequences are included per taxon.
 
 ## Contact information
 Please reach out to us at the [National Genomics Center for Wildlife and Fish Conservation](https://www.fs.usda.gov/rmrs/ngc) with any questions or comments. 
