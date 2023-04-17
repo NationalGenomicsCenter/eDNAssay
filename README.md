@@ -10,7 +10,7 @@ is often dubious. Instead of relying on thermodynamic models and simple mismatch
 models have been trained on empirical data and are therefore highly accurate. Results from model training scripts in this repository will vary slightly 
 from those in Kronenberger et al. (2022) depending on the seed selected.
 
-IMPORTANT: eDNAssay was trained using qPCR results generated at the National Genomics Center for Wildlife and Fish Conservation and using it to predict specificity under different reaction conditions may be less accurate. For optimal performance, we recommend users either follow the reaction conditions outlined in Kronenberger et al. (2022) or reassess/retrain the model using their conditions of choice.
+IMPORTANT: eDNAssay was trained using qPCR results generated at the [National Genomics Center for Wildlife and Fish Conservation](https://www.fs.usda.gov/rmrs/ngc) and using it to predict specificity under different reaction conditions may be less accurate. For optimal performance, we recommend users either follow the reaction conditions outlined in Kronenberger et al. (2022) or reassess/retrain the model using their conditions of choice.
 
 ## File guide
 - **SYBR_training_data.csv** - Empirical dataset containing information on base-pair mismatches, oligonucleotide characteristics, and the results of SYBR Green-based qPCR tests. These data were used to test the primer-only model. See Training_variable_definitions.xlsx for more information.
