@@ -60,7 +60,7 @@ input_seqs <- as.matrix(input_seqs)
 input_matrix <- cbind(input_metadata, input_seqs)
 input_matrix <-
   as.data.frame(input_matrix, stringsAsFactors = FALSE)
-input_matrix <- na_if(input_matrix, "-")
+input_matrix <- replace(input_matrix, input_matrix == "-", NA)
 
 ### Convert "NA" in template sequences to "N" to accommodate indels
 input_matrix_names <- input_matrix[, 1:3]

@@ -448,7 +448,7 @@ server <- function(input, output) {
         input_matrix <- cbind(input_matrix_names, input_matrix_seqs)
         
         ### Convert "NA" in template sequences to "N" to accommodate indels
-        input_matrix <- na_if(input_matrix, "-")
+        input_matrix <- replace(input_matrix, input_matrix == "-", NA)
         input_matrix_oligos <- input_matrix[1:3,]
         input_matrix_templates <-
             input_matrix[4:nrow(input_matrix),]
